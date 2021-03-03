@@ -47,10 +47,12 @@ namespace app {
 		void Save();
 		void Load();
 
+		bool m_newStroke = true;
 		uint32_t colorPalleteIdx = 0;
 		glm::mat4 viewProjectionMatrix;
 		glm::mat4 translationMatrix;
 		glm::mat4 scaleMatrix;
 		Color colorPallete[8];
+		void AddLineSegment(const glm::vec2& newpos);
 	};
 }

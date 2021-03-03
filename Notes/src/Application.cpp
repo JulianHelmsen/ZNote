@@ -52,8 +52,8 @@ namespace app {
 		glUniformMatrix4fv(m_uniformLocationViewProjection, 1, GL_FALSE, &scaleMatrix[0][0]);
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		colorPallete[0] = WHITE;
-		colorPallete[1] = PINK;
+		colorPallete[0] = PINK;
+		colorPallete[1] = WHITE;
 		colorPallete[2] = CORAL;
 		colorPallete[3] = YELLOW;
 		colorPallete[4] = TEAL;
@@ -66,16 +66,60 @@ namespace app {
 		glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
 	}
 
+	void Application::AddLineSegment(const glm::vec2& newpos) {
+		Vertex& last = m_hostVertices[m_hostVertices.size() - 1];
+		const Vertex& penultimate = m_hostVertices[m_hostVertices.size() - 2];
+		glm::vec2 lastPos = glm::vec2(last.x, last.y);
+		glm::vec2 prevDir = lastPos - glm::vec2(penultimate.x, penultimate.y);
+		glm::vec2 currDir = newpos - lastPos;
+
+		float d = glm::dot(glm::normalize(prevDir), glm::normalize(currDir));
+		float angle = glm::acos(d);
+
+		// calculate nearest position to possibly extended line to calculate distance
+		// line: s = lastPos, dir: prevDir
+		// p: newpos
+		// calculate parameter
+		glm::vec2 posDiff = newpos - lastPos;
+		const float t = glm::dot(posDiff, prevDir) / (prevDir.x * prevDir.x + prevDir.y * prevDir.y);
+		glm::vec2 nearestPointOnExtendedLine = lastPos + t * prevDir;
+		float distanceToPoint = glm::length(nearestPointOnExtendedLine - newpos);
+		float extendedLineLen = glm::length(nearestPointOnExtendedLine - glm::vec2(penultimate.x, penultimate.y));
+		float oldLineLen = glm::length(lastPos - glm::vec2(penultimate.x, penultimate.y));
+
+		float distanceRatio = distanceToPoint / extendedLineLen;
+
+		constexpr float distanceRatioThreshold = 0.02f;
+
+		if (distanceRatio < distanceRatioThreshold && t > 0.0f && oldLineLen < extendedLineLen) {
+			last.x = newpos.x;
+			last.y = newpos.y;
+		}else {
+			m_hostIndices.push_back(m_hostVertices.size() - 1);
+			m_hostIndices.push_back(m_hostVertices.size());
+			m_hostVertices.push_back({ newpos.x, newpos.y, GetColor() });
+		}
+
+	}
+
 	void Application::OnMouseDragged(uint32_t oldX, uint32_t oldY, uint32_t x, uint32_t y, int button) {
 		glm::mat4 inverse = glm::inverse(viewProjectionMatrix);
 		glm::vec2 normalizedOld = inverse * glm::vec4(Normalize(oldX, oldY), 0.0f, 1.0f);
 		glm::vec2 normalized = inverse * glm::vec4(Normalize(x, y), 0.0f, 1.0f);
 
 		if (button == 0) {
-			m_hostIndices.push_back(m_hostVertices.size());
-			m_hostVertices.push_back({ normalizedOld.x, normalizedOld.y, GetColor() });
-			m_hostIndices.push_back(m_hostVertices.size());
-			m_hostVertices.push_back({ normalized.x, normalized.y, GetColor() });
+
+			// check if the last line is connected to this one and wether they can be merged into one line segment
+			if (m_newStroke) {
+				m_hostIndices.push_back(m_hostVertices.size());
+				m_hostVertices.push_back({ normalizedOld.x, normalizedOld.y, GetColor() });
+				m_hostIndices.push_back(m_hostVertices.size());
+				m_hostVertices.push_back({ normalized.x, normalized.y, GetColor() });
+				m_newStroke = false; // until release
+			}else {
+				AddLineSegment(normalized);
+			}
+			
 		}else if (button == 1) {
 			translationMatrix[3][0] -= normalizedOld.x - normalized.x;
 			translationMatrix[3][1] -= normalizedOld.y - normalized.y;
@@ -87,6 +131,9 @@ namespace app {
 			colorPalleteIdx++;
 			if (colorPalleteIdx >= sizeof(colorPallete) / sizeof(Color))
 				colorPalleteIdx = 0;
+		}else if (button == MouseButton::LEFT) {
+			if(!isdown)
+				m_newStroke = true;
 		}
 	}
 
@@ -104,7 +151,13 @@ namespace app {
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr) m_hostIndices.size() * sizeof(uint32_t), m_hostIndices.data(), GL_DYNAMIC_DRAW);
 
 		// Draw
-		glDrawElements(GL_LINES, (GLsizei) m_hostIndices.size(), GL_UNSIGNED_INT, NULL);
+		constexpr GLenum primitive = GL_LINES;
+		glDrawElements(primitive, (GLsizei) m_hostIndices.size(), GL_UNSIGNED_INT, NULL);
+
+#if 0
+		uint32_t vramUsage = (uint32_t) (m_hostIndices.size() * sizeof(uint32_t) + m_hostVertices.size() * sizeof(Vertex));
+		printf("vram usage: %d\n", vramUsage);
+#endif
 	}
 
 	void Application::Run() {
@@ -181,6 +234,7 @@ namespace app {
 			// read translation matrix
 			fread_s(glm::value_ptr(translationMatrix), sizeof(translationMatrix), sizeof(translationMatrix), 1, file);
 
+			m_newStroke = true;
 			m_hostVertices = newVertexBuffer;
 			m_hostIndices= newIndexBuffer;
 			fclose(file);

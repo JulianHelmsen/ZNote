@@ -41,8 +41,10 @@ namespace app {
 		void OnMouseDragged(uint32_t oldX, uint32_t oldY, uint32_t x, uint32_t y, int button);
 		void OnMouseButtonStateChanged(MouseButton button, uint32_t x, uint32_t y, bool isdown);
 		void OnResize();
+		void OnKeyPress(uint32_t keycode);
 		void OnScroll(int dir);
 		inline Color GetColor() const { return colorPallete[colorPalleteIdx]; }
+		
 		
 		void Save();
 		void Load();

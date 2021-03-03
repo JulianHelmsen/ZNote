@@ -5,6 +5,7 @@
 #include "os/Utils.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Keycodes.h"
 
 namespace app {
 
@@ -25,6 +26,7 @@ namespace app {
 		Window::SetSaveCallback(std::bind(&Application::Save, this));
 		Window::SetLoadCallback(std::bind(&Application::Load, this));
 		Window::SetScrollWheelCallback(std::bind(&Application::OnScroll, this, std::placeholders::_1));
+		Window::SetKeyCallback(std::bind(&Application::OnKeyPress, this, std::placeholders::_1));
 		Window::SetMouseButtonCallback(std::bind(&Application::OnMouseButtonStateChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 		glewInit();
 		renderer::SetRenderDefaults();
@@ -174,6 +176,12 @@ namespace app {
 		glDeleteBuffers(1, &m_ibo);
 		glDeleteVertexArrays(1, &m_vao);
 		Window::Destroy();
+	}
+
+
+	void Application::OnKeyPress(uint32_t keycode) {
+		if(keycode >= KEY_1 && keycode <= KEY_8)
+			colorPalleteIdx = keycode - KEY_1;
 	}
 
 	void Application::OnScroll(int dir) {

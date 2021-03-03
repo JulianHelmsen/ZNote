@@ -10,6 +10,7 @@ static uint32_t mouseX = 0xFFFFFFFF, mouseY = 0xFFFFFFFF;
 
 
 
+
 static struct {
 	std::function<void()> resize;
 	std::function<void(uint32_t, uint32_t, uint32_t, uint32_t, int button)> drag;
@@ -17,6 +18,7 @@ static struct {
 	std::function<void()> load;
 	std::function<void()> save;
 	std::function<void(MouseButton, uint32_t, uint32_t, bool)> buttonCallback;
+	std::function<void(uint32_t)> key;
 }s_callbacks;
 
 void Window::OnMouseDragged(int button, uint32_t x, uint32_t y, uint32_t nx, uint32_t ny) {
@@ -33,6 +35,10 @@ void Window::OnMouseDragged(int button, uint32_t x, uint32_t y, uint32_t nx, uin
 
 	if(px >= 0 && py >= 0 && py < h && px < w && inx >= 0 && iny >= 0 && iny < h && inx < w)
 		s_callbacks.drag(x, y, nx, ny, button);
+}
+
+void Window::SetKeyCallback(std::function<void(uint32_t)> key) {
+	s_callbacks.key = key;
 }
 
 void Window::SetResizeCallback(std::function<void()> resizeCallback) {
@@ -134,6 +140,12 @@ void Window::Create() {
 			}else if (key == GLFW_KEY_O && s_callbacks.load) {
 				s_callbacks.load();
 			}
+		}
+	});
+
+	glfwSetKeyCallback(s_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) -> void {
+		if (action == GLFW_PRESS && s_callbacks.key) {
+			s_callbacks.key(key);
 		}
 	});
 

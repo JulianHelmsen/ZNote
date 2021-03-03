@@ -16,6 +16,7 @@ static struct {
 	std::function<void(int)> scrollWheel;
 	std::function<void()> load;
 	std::function<void()> save;
+	std::function<void(MouseButton, uint32_t, uint32_t, bool)> buttonCallback;
 }s_callbacks;
 
 void Window::OnMouseDragged(int button, uint32_t x, uint32_t y, uint32_t nx, uint32_t ny) {
@@ -38,7 +39,7 @@ void Window::SetResizeCallback(std::function<void()> resizeCallback) {
 	s_callbacks.resize = resizeCallback;
 }
 
-void Window::SetDragCallback(std::function<void(uint32_t, uint32_t, uint32_t, uint32_t, int button)> callback) {
+void Window::SetDragCallback(std::function<void(uint32_t, uint32_t, uint32_t, uint32_t, int)> callback) {
 	s_callbacks.drag = callback;
 }
 
@@ -53,6 +54,11 @@ void Window::SetSaveCallback(std::function<void()> callback) {
 void Window::SetLoadCallback(std::function<void()> callback) {
 	s_callbacks.load = callback;
 }
+
+void Window::SetMouseButtonCallback(std::function<void(MouseButton, uint32_t, uint32_t, bool)> callback) {
+	s_callbacks.buttonCallback = callback;
+}
+
 
 
 void* Window::GetNativeHandle() {
@@ -71,6 +77,7 @@ uint32_t Window::GetHeight() {
 	return (uint32_t)y;
 }
 
+
 void Window::Create() {
 	glfwInit();
 	glfwWindowHint(GLFW_SAMPLES, 4);
@@ -78,28 +85,22 @@ void Window::Create() {
 	glfwMakeContextCurrent(s_window);
 
 	glfwSetMouseButtonCallback(s_window, [](GLFWwindow* window, int button, int action, int mods) -> void {
-		if (action == GLFW_PRESS) {
+		double x, y;
+		glfwGetCursorPos(window, &x, &y);
+		uint32_t cursorX = (uint32_t)x;
+		uint32_t cursorY = (uint32_t)y;
+
+		if(s_callbacks.buttonCallback)
+			s_callbacks.buttonCallback((MouseButton) button, cursorX, cursorY, action == GLFW_PRESS);
+
+		if (action == GLFW_PRESS)
 			mousePressed = button + 1;
-			double x, y;
-			glfwGetCursorPos(window, &x, &y);
-			mouseX = (uint32_t)x;
-			mouseY = (uint32_t)y;
-		}else {
-			// release
-			double x, y;
-			glfwGetCursorPos(window, &x, &y);
-			uint32_t newMousePosX = (uint32_t) x;
-			uint32_t newMousePosY = (uint32_t) y;
-
-
-
-			if (newMousePosX != mouseX || newMousePosY != mouseY) {
-				// mouse dragged somewhere else
-				Window::OnMouseDragged(button, mouseX, mouseY, newMousePosX, newMousePosY);
-			}
-
+		else
 			mousePressed = 0;
-		}
+		
+
+		mouseX = cursorX;
+		mouseY = cursorY;
 	});
 
 	glfwSetCursorPosCallback(s_window, [](GLFWwindow* window, double x, double y) -> void {

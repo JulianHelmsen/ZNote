@@ -24,4 +24,5 @@ namespace app {
 		};
 		uint32_t color;
 	};
+
 }

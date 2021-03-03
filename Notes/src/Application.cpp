@@ -1,5 +1,4 @@
 #include "Application.h"
-#include "Window.h"
 #include <GL/glew.h>
 #include "Shader.h"
 #include "RenderDefaults.h"
@@ -26,6 +25,7 @@ namespace app {
 		Window::SetSaveCallback(std::bind(&Application::Save, this));
 		Window::SetLoadCallback(std::bind(&Application::Load, this));
 		Window::SetScrollWheelCallback(std::bind(&Application::OnScroll, this, std::placeholders::_1));
+		Window::SetMouseButtonCallback(std::bind(&Application::OnMouseButtonStateChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 		glewInit();
 		renderer::SetRenderDefaults();
 
@@ -45,7 +45,6 @@ namespace app {
 		
 		m_program = utils::CreateShaderProgram();
 		glUseProgram(m_program);
-		m_currentColor = BLUE;
 		translationMatrix = glm::mat4(1.0f);
 		scaleMatrix = glm::mat4(1.0f);
 
@@ -53,6 +52,14 @@ namespace app {
 		glUniformMatrix4fv(m_uniformLocationViewProjection, 1, GL_FALSE, &scaleMatrix[0][0]);
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		colorPallete[0] = WHITE;
+		colorPallete[1] = PINK;
+		colorPallete[2] = CORAL;
+		colorPallete[3] = YELLOW;
+		colorPallete[4] = TEAL;
+		colorPallete[5] = LIGHT_BLUE;
+		colorPallete[6] = BLUE;
+		colorPallete[7] = PURPLE;
 	}
 
 	void Application::OnResize() {
@@ -66,12 +73,20 @@ namespace app {
 
 		if (button == 0) {
 			m_hostIndices.push_back(m_hostVertices.size());
-			m_hostVertices.push_back({ normalizedOld.x, normalizedOld.y, m_currentColor });
+			m_hostVertices.push_back({ normalizedOld.x, normalizedOld.y, GetColor() });
 			m_hostIndices.push_back(m_hostVertices.size());
-			m_hostVertices.push_back({ normalized.x, normalized.y, m_currentColor });
+			m_hostVertices.push_back({ normalized.x, normalized.y, GetColor() });
 		}else if (button == 1) {
 			translationMatrix[3][0] -= normalizedOld.x - normalized.x;
 			translationMatrix[3][1] -= normalizedOld.y - normalized.y;
+		}
+	}
+
+	void Application::OnMouseButtonStateChanged(MouseButton button, uint32_t x, uint32_t y, bool isdown) {
+		if (button == MouseButton::WHEEL && isdown) {
+			colorPalleteIdx++;
+			if (colorPalleteIdx >= sizeof(colorPallete) / sizeof(Color))
+				colorPalleteIdx = 0;
 		}
 	}
 

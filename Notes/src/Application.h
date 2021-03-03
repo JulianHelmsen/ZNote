@@ -39,6 +39,10 @@ namespace app {
 		void Update();
 		void OnMouseDragged(uint32_t oldX, uint32_t oldY, uint32_t x, uint32_t y, int button);
 		void OnResize();
+		void OnScroll(int dir);
+		
+		void Save();
+		void Load();
 
 		Color m_currentColor;
 		glm::mat4 viewProjectionMatrix;

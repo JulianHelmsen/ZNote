@@ -1,36 +1,63 @@
+
 #include "Window.h"
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 
+
 static GLFWwindow* s_window = NULL;
 static int mousePressed = 0;
 static uint32_t mouseX = 0xFFFFFFFF, mouseY = 0xFFFFFFFF;
-static std::function<void(uint32_t, uint32_t, uint32_t, uint32_t, int button)> s_dragCallback;
-static std::function<void()> s_resizeCallback;
+
+
+
+static struct {
+	std::function<void()> resize;
+	std::function<void(uint32_t, uint32_t, uint32_t, uint32_t, int button)> drag;
+	std::function<void(int)> scrollWheel;
+	std::function<void()> load;
+	std::function<void()> save;
+}s_callbacks;
 
 void Window::OnMouseDragged(int button, uint32_t x, uint32_t y, uint32_t nx, uint32_t ny) {
 
 	button -= 1;
 	int w, h;
+
 	glfwGetWindowSize(s_window, &w, &h);
-	printf("%d, %d, %d, %d\n", x, y, nx, ny);
+
 	int px = x;
 	int py = y;
 	int inx = nx;
 	int iny = ny;
 
 	if(px >= 0 && py >= 0 && py < h && px < w && inx >= 0 && iny >= 0 && iny < h && inx < w)
-		s_dragCallback(x, y, nx, ny, button);
+		s_callbacks.drag(x, y, nx, ny, button);
 }
 
 void Window::SetResizeCallback(std::function<void()> resizeCallback) {
-	s_resizeCallback = resizeCallback;
+	s_callbacks.resize = resizeCallback;
 }
 
 void Window::SetDragCallback(std::function<void(uint32_t, uint32_t, uint32_t, uint32_t, int button)> callback) {
-	s_dragCallback = callback;
+	s_callbacks.drag = callback;
 }
 
+void Window::SetScrollWheelCallback(std::function<void(int)> callback) {
+	s_callbacks.scrollWheel = callback;
+}
+
+void Window::SetSaveCallback(std::function<void()> callback) {
+	s_callbacks.save = callback;
+}
+
+void Window::SetLoadCallback(std::function<void()> callback) {
+	s_callbacks.load = callback;
+}
+
+
+void* Window::GetNativeHandle() {
+	return (void*) s_window;
+}
 
 uint32_t Window::GetWidth() {
 	int x, y;
@@ -90,8 +117,26 @@ void Window::Create() {
 	});
 
 	glfwSetFramebufferSizeCallback(s_window, [](GLFWwindow* window, int w, int h) -> void {
-		s_resizeCallback();
+		s_callbacks.resize();
 	});
+
+	glfwSetScrollCallback(s_window, [](GLFWwindow* window, double x, double y) -> void {
+		int dir = (int) y;
+		if(s_callbacks.scrollWheel)
+			s_callbacks.scrollWheel(y);
+	});
+
+	glfwSetKeyCallback(s_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) -> void {
+		if (mods & GLFW_MOD_CONTROL && action == GLFW_RELEASE) {
+			if (key == GLFW_KEY_S && s_callbacks.save) {
+				s_callbacks.save();
+			}else if (key == GLFW_KEY_O && s_callbacks.load) {
+				s_callbacks.load();
+			}
+		}
+	});
+
+	
 }
 
 

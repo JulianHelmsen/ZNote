@@ -37,7 +37,10 @@ project "Notes"
 		"glew32s"
 	}
 	defines {"GLEW_STATIC"}
-	
+
+	filter "platforms:WINDOWS"
+		files {"Notes/platform/windows/**.cpp"}
+		defines {"WINDOWS"}
 
 	filter "configurations:DEBUG"
 		defines {"DEBUG"}

@@ -3,7 +3,9 @@
 #include <GL/glew.h>
 #include "Shader.h"
 #include "RenderDefaults.h"
+#include "os/Utils.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace app {
 
@@ -21,6 +23,9 @@ namespace app {
 		Window::Create();
 		Window::SetDragCallback(std::bind(&Application::OnMouseDragged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
 		Window::SetResizeCallback(std::bind(&Application::OnResize, this));
+		Window::SetSaveCallback(std::bind(&Application::Save, this));
+		Window::SetLoadCallback(std::bind(&Application::Load, this));
+		Window::SetScrollWheelCallback(std::bind(&Application::OnScroll, this, std::placeholders::_1));
 		glewInit();
 		renderer::SetRenderDefaults();
 
@@ -68,14 +73,17 @@ namespace app {
 			translationMatrix[3][0] -= normalizedOld.x - normalized.x;
 			translationMatrix[3][1] -= normalizedOld.y - normalized.y;
 		}
-		printf("%d\n", button);
 	}
 
 
 	void Application::Update() {
+		// clear screen buffer
 		glClear(GL_COLOR_BUFFER_BIT);
-		viewProjectionMatrix = translationMatrix * scaleMatrix;
+
+		// calculate and set new projection matrix
+		viewProjectionMatrix = scaleMatrix * translationMatrix;
 		glUniformMatrix4fv(m_uniformLocationViewProjection, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
+
 		// copy host index and vertex buffer to gpu
 		glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr) m_hostVertices.size() * sizeof(Vertex), m_hostVertices.data(), GL_DYNAMIC_DRAW);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr) m_hostIndices.size() * sizeof(uint32_t), m_hostIndices.data(), GL_DYNAMIC_DRAW);
@@ -98,5 +106,69 @@ namespace app {
 		glDeleteBuffers(1, &m_ibo);
 		glDeleteVertexArrays(1, &m_vao);
 		Window::Destroy();
+	}
+
+	void Application::OnScroll(int dir) {
+		if (dir > 0)
+			scaleMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(1.1f));
+		else
+			scaleMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(0.9f));
+	}
+
+	void Application::Save() {
+		std::optional<std::string> filepath = os::ShowSaveDialog();
+		if (filepath) {
+			FILE* file = fopen(filepath->c_str(), "wb");
+
+			// write number of vertex buffer
+			uint32_t sizeHeader = (uint32_t) m_hostVertices.size();
+			fwrite(&sizeHeader, sizeof(sizeHeader), 1, file);
+			// write vertex buffer data
+			fwrite(m_hostVertices.data(), sizeof(Vertex), m_hostVertices.size(), file);
+			// write number of index buffer
+			sizeHeader = (uint32_t)m_hostIndices.size();
+			fwrite(&sizeHeader, sizeof(sizeHeader), 1, file);
+			// write index buffer data
+			fwrite(m_hostIndices.data(), sizeof(uint32_t), m_hostIndices.size(), file);
+			// write scale matrix
+			fwrite(glm::value_ptr(scaleMatrix), sizeof(glm::mat4), 1, file);
+			// write translation matrix
+			fwrite(glm::value_ptr(translationMatrix), sizeof(glm::mat4), 1, file);
+			
+
+			fclose(file);
+		}
+	}
+
+	void Application::Load() {
+		std::optional<std::string> filepath = os::ShowOpenDialog(NULL);
+		if (filepath) {
+			FILE* file = fopen(filepath->c_str(), "rb");
+			uint32_t elemCount;
+			// read number of vertices
+			fread_s(&elemCount, sizeof(elemCount), sizeof(uint32_t), 1, file);
+			// read vertex buffer
+			std::vector<Vertex> newVertexBuffer;
+			newVertexBuffer.resize(elemCount);
+			fread_s(newVertexBuffer.data(), elemCount * sizeof(Vertex), sizeof(Vertex), elemCount, file);
+
+			// read number of indices
+			fread_s(&elemCount, sizeof(elemCount), sizeof(uint32_t), 1, file);
+
+			// read index buffer
+			std::vector<uint32_t> newIndexBuffer;
+			newIndexBuffer.resize(elemCount);
+			fread_s(newIndexBuffer.data(), elemCount * sizeof(uint32_t), sizeof(uint32_t), elemCount, file);
+
+			// read scale matrix
+			fread_s(glm::value_ptr(scaleMatrix), sizeof(scaleMatrix), sizeof(scaleMatrix), 1, file);
+
+			// read translation matrix
+			fread_s(glm::value_ptr(translationMatrix), sizeof(translationMatrix), sizeof(translationMatrix), 1, file);
+
+			m_hostVertices = newVertexBuffer;
+			m_hostIndices= newIndexBuffer;
+			fclose(file);
+		}
 	}
 }

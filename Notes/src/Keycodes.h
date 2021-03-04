@@ -1,6 +1,12 @@
 #pragma once
 
 
+enum class MouseButton : uint32_t {
+	WHEEL = 2,
+	LEFT = 0,
+	Right = 1
+};
+
 #define KEY_SPACE              32
 #define KEY_APOSTROPHE         39 
 #define KEY_COMMA              44 

@@ -2,20 +2,17 @@
 
 #include <stdint.h>
 #include <vector>
-#include "Color.h"
 #include <glm/glm.hpp>
-#include "Window.h"
+#include "core/Window.h"
+#include "Scene.h"
+#include "Tool.h"
 
 namespace app {
 
 
 
 
-	struct Vertex {
-		float x;
-		float y;
-		Color color;
-	};
+	
 
 	class Application {
 	public:
@@ -33,28 +30,20 @@ namespace app {
 		uint32_t m_program;
 		uint32_t m_uniformLocationViewProjection;
 
-		std::vector<Vertex> m_hostVertices;
-		std::vector<uint32_t> m_hostIndices;
-
-
 		void Update();
 		void OnMouseDragged(uint32_t oldX, uint32_t oldY, uint32_t x, uint32_t y, int button);
 		void OnMouseButtonStateChanged(MouseButton button, uint32_t x, uint32_t y, bool isdown);
 		void OnResize();
 		void OnKeyPress(uint32_t keycode);
 		void OnScroll(int dir);
-		inline Color GetColor() const { return colorPallete[colorPalleteIdx]; }
+		void UseTool(Tool* tool);
 		
 		
 		void Save();
 		void Load();
 
-		bool m_newStroke = true;
-		uint32_t colorPalleteIdx = 0;
-		glm::mat4 viewProjectionMatrix;
-		glm::mat4 translationMatrix;
-		glm::mat4 scaleMatrix;
-		Color colorPallete[8];
-		void AddLineSegment(const glm::vec2& newpos);
+		Scene m_scene;
+		Tool* m_currentTool = NULL;
+		
 	};
 }

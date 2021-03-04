@@ -2,13 +2,9 @@
 
 #include <stdint.h>
 #include <functional>
+#include "Keycodes.h"
 
 
-enum class MouseButton : uint32_t {
-	WHEEL = 2,
-	LEFT = 0,
-	Right = 1
-};
 
 class Window {
 public:

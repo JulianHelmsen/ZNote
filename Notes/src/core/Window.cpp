@@ -130,7 +130,7 @@ void Window::Create() {
 	glfwSetScrollCallback(s_window, [](GLFWwindow* window, double x, double y) -> void {
 		int dir = (int) y;
 		if(s_callbacks.scrollWheel)
-			s_callbacks.scrollWheel(y);
+			s_callbacks.scrollWheel(dir);
 	});
 
 	glfwSetKeyCallback(s_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) -> void {
@@ -140,11 +140,7 @@ void Window::Create() {
 			}else if (key == GLFW_KEY_O && s_callbacks.load) {
 				s_callbacks.load();
 			}
-		}
-	});
-
-	glfwSetKeyCallback(s_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) -> void {
-		if (action == GLFW_PRESS && s_callbacks.key) {
+		}else if (action == GLFW_PRESS && s_callbacks.key) {
 			s_callbacks.key(key);
 		}
 	});

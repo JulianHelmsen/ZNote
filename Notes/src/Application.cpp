@@ -1,11 +1,13 @@
 #include "Application.h"
 #include <GL/glew.h>
-#include "Shader.h"
-#include "RenderDefaults.h"
+#include "renderer/Shader.h"
+#include "renderer/RenderDefaults.h"
 #include "os/Utils.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Keycodes.h"
+#include "SceneSerializer.h"
+#include "Pencil.h"
 
 namespace app {
 
@@ -47,96 +49,48 @@ namespace app {
 		
 		m_program = utils::CreateShaderProgram();
 		glUseProgram(m_program);
-		translationMatrix = glm::mat4(1.0f);
-		scaleMatrix = glm::mat4(1.0f);
-
+		
+		
 		m_uniformLocationViewProjection = glGetUniformLocation(m_program, "viewProjectionMatrix");
-		glUniformMatrix4fv(m_uniformLocationViewProjection, 1, GL_FALSE, &scaleMatrix[0][0]);
+		glUniformMatrix4fv(m_uniformLocationViewProjection, 1, GL_FALSE, glm::value_ptr(m_scene.scaleMatrix));
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		colorPallete[0] = PINK;
-		colorPallete[1] = WHITE;
-		colorPallete[2] = CORAL;
-		colorPallete[3] = YELLOW;
-		colorPallete[4] = TEAL;
-		colorPallete[5] = LIGHT_BLUE;
-		colorPallete[6] = BLUE;
-		colorPallete[7] = PURPLE;
+
+		UseTool(new Pencil);
+		
 	}
+
+	void Application::UseTool(Tool* tool) {
+		if (m_currentTool)
+			delete m_currentTool;
+		
+		m_currentTool = tool;
+		tool->SetContext(&m_scene);
+	}
+
 
 	void Application::OnResize() {
 		glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
 	}
 
-	void Application::AddLineSegment(const glm::vec2& newpos) {
-		Vertex& last = m_hostVertices[m_hostVertices.size() - 1];
-		const Vertex& penultimate = m_hostVertices[m_hostVertices.size() - 2];
-		glm::vec2 lastPos = glm::vec2(last.x, last.y);
-		glm::vec2 prevDir = lastPos - glm::vec2(penultimate.x, penultimate.y);
-		glm::vec2 currDir = newpos - lastPos;
-
-		float d = glm::dot(glm::normalize(prevDir), glm::normalize(currDir));
-		float angle = glm::acos(d);
-
-		// calculate nearest position to possibly extended line to calculate distance
-		// line: s = lastPos, dir: prevDir
-		// p: newpos
-		// calculate parameter
-		glm::vec2 posDiff = newpos - lastPos;
-		const float t = glm::dot(posDiff, prevDir) / (prevDir.x * prevDir.x + prevDir.y * prevDir.y);
-		glm::vec2 nearestPointOnExtendedLine = lastPos + t * prevDir;
-		float distanceToPoint = glm::length(nearestPointOnExtendedLine - newpos);
-		float extendedLineLen = glm::length(nearestPointOnExtendedLine - glm::vec2(penultimate.x, penultimate.y));
-		float oldLineLen = glm::length(lastPos - glm::vec2(penultimate.x, penultimate.y));
-
-		float distanceRatio = distanceToPoint / extendedLineLen;
-
-		constexpr float distanceRatioThreshold = 0.02f;
-
-		if (distanceRatio < distanceRatioThreshold && t > 0.0f && oldLineLen < extendedLineLen) {
-			last.x = newpos.x;
-			last.y = newpos.y;
-		}else {
-			m_hostIndices.push_back(m_hostVertices.size() - 1);
-			m_hostIndices.push_back(m_hostVertices.size());
-			m_hostVertices.push_back({ newpos.x, newpos.y, GetColor() });
-		}
-
-	}
 
 	void Application::OnMouseDragged(uint32_t oldX, uint32_t oldY, uint32_t x, uint32_t y, int button) {
-		glm::mat4 inverse = glm::inverse(viewProjectionMatrix);
+		glm::mat4 inverse = glm::inverse(m_scene.viewProjectionMatrix);
 		glm::vec2 normalizedOld = inverse * glm::vec4(Normalize(oldX, oldY), 0.0f, 1.0f);
 		glm::vec2 normalized = inverse * glm::vec4(Normalize(x, y), 0.0f, 1.0f);
 
-		if (button == 0) {
-
-			// check if the last line is connected to this one and wether they can be merged into one line segment
-			if (m_newStroke) {
-				m_hostIndices.push_back(m_hostVertices.size());
-				m_hostVertices.push_back({ normalizedOld.x, normalizedOld.y, GetColor() });
-				m_hostIndices.push_back(m_hostVertices.size());
-				m_hostVertices.push_back({ normalized.x, normalized.y, GetColor() });
-				m_newStroke = false; // until release
-			}else {
-				AddLineSegment(normalized);
-			}
-			
-		}else if (button == 1) {
-			translationMatrix[3][0] -= normalizedOld.x - normalized.x;
-			translationMatrix[3][1] -= normalizedOld.y - normalized.y;
+		if (button == 1) {
+			m_scene.translationMatrix[3][0] -= normalizedOld.x - normalized.x;
+			m_scene.translationMatrix[3][1] -= normalizedOld.y - normalized.y;
+		}else if (m_currentTool && button == 0) {
+			m_currentTool->OnDrag(normalizedOld, normalized, button);
 		}
+			
 	}
 
 	void Application::OnMouseButtonStateChanged(MouseButton button, uint32_t x, uint32_t y, bool isdown) {
-		if (button == MouseButton::WHEEL && isdown) {
-			colorPalleteIdx++;
-			if (colorPalleteIdx >= sizeof(colorPallete) / sizeof(Color))
-				colorPalleteIdx = 0;
-		}else if (button == MouseButton::LEFT) {
-			if(!isdown)
-				m_newStroke = true;
-		}
+		if (m_currentTool)
+			m_currentTool->OnButtonStateChanged(button, isdown);
 	}
 
 
@@ -145,16 +99,16 @@ namespace app {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// calculate and set new projection matrix
-		viewProjectionMatrix = scaleMatrix * translationMatrix;
-		glUniformMatrix4fv(m_uniformLocationViewProjection, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
+		m_scene.viewProjectionMatrix = m_scene.scaleMatrix * m_scene.translationMatrix;
+		glUniformMatrix4fv(m_uniformLocationViewProjection, 1, GL_FALSE, glm::value_ptr(m_scene.viewProjectionMatrix));
 
 		// copy host index and vertex buffer to gpu
-		glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr) m_hostVertices.size() * sizeof(Vertex), m_hostVertices.data(), GL_DYNAMIC_DRAW);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr) m_hostIndices.size() * sizeof(uint32_t), m_hostIndices.data(), GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr) m_scene.hostVertices.size() * sizeof(Vertex), m_scene.hostVertices.data(), GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)m_scene.hostIndices.size() * sizeof(uint32_t), m_scene.hostIndices.data(), GL_DYNAMIC_DRAW);
 
 		// Draw
 		constexpr GLenum primitive = GL_LINES;
-		glDrawElements(primitive, (GLsizei) m_hostIndices.size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(primitive, (GLsizei) m_scene.hostIndices.size(), GL_UNSIGNED_INT, NULL);
 
 #if 0
 		uint32_t vramUsage = (uint32_t) (m_hostIndices.size() * sizeof(uint32_t) + m_hostVertices.size() * sizeof(Vertex));
@@ -180,72 +134,28 @@ namespace app {
 
 
 	void Application::OnKeyPress(uint32_t keycode) {
-		if(keycode >= KEY_1 && keycode <= KEY_8)
-			colorPalleteIdx = keycode - KEY_1;
+		if (m_currentTool)
+			m_currentTool->OnKeyPress(keycode);
 	}
 
 	void Application::OnScroll(int dir) {
 		if (dir > 0)
-			scaleMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(1.1f));
+			m_scene.scaleMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(1.1f));
 		else
-			scaleMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(0.9f));
+			m_scene.scaleMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(0.9f));
 	}
 
 	void Application::Save() {
 		std::optional<std::string> filepath = os::ShowSaveDialog();
 		if (filepath) {
-			FILE* file = fopen(filepath->c_str(), "wb");
-
-			// write number of vertex buffer
-			uint32_t sizeHeader = (uint32_t) m_hostVertices.size();
-			fwrite(&sizeHeader, sizeof(sizeHeader), 1, file);
-			// write vertex buffer data
-			fwrite(m_hostVertices.data(), sizeof(Vertex), m_hostVertices.size(), file);
-			// write number of index buffer
-			sizeHeader = (uint32_t)m_hostIndices.size();
-			fwrite(&sizeHeader, sizeof(sizeHeader), 1, file);
-			// write index buffer data
-			fwrite(m_hostIndices.data(), sizeof(uint32_t), m_hostIndices.size(), file);
-			// write scale matrix
-			fwrite(glm::value_ptr(scaleMatrix), sizeof(glm::mat4), 1, file);
-			// write translation matrix
-			fwrite(glm::value_ptr(translationMatrix), sizeof(glm::mat4), 1, file);
-			
-
-			fclose(file);
+			SceneSerializer::Serialize(filepath->c_str(), m_scene);
 		}
 	}
 
 	void Application::Load() {
 		std::optional<std::string> filepath = os::ShowOpenDialog(NULL);
 		if (filepath) {
-			FILE* file = fopen(filepath->c_str(), "rb");
-			uint32_t elemCount;
-			// read number of vertices
-			fread_s(&elemCount, sizeof(elemCount), sizeof(uint32_t), 1, file);
-			// read vertex buffer
-			std::vector<Vertex> newVertexBuffer;
-			newVertexBuffer.resize(elemCount);
-			fread_s(newVertexBuffer.data(), elemCount * sizeof(Vertex), sizeof(Vertex), elemCount, file);
-
-			// read number of indices
-			fread_s(&elemCount, sizeof(elemCount), sizeof(uint32_t), 1, file);
-
-			// read index buffer
-			std::vector<uint32_t> newIndexBuffer;
-			newIndexBuffer.resize(elemCount);
-			fread_s(newIndexBuffer.data(), elemCount * sizeof(uint32_t), sizeof(uint32_t), elemCount, file);
-
-			// read scale matrix
-			fread_s(glm::value_ptr(scaleMatrix), sizeof(scaleMatrix), sizeof(scaleMatrix), 1, file);
-
-			// read translation matrix
-			fread_s(glm::value_ptr(translationMatrix), sizeof(translationMatrix), sizeof(translationMatrix), 1, file);
-
-			m_newStroke = true;
-			m_hostVertices = newVertexBuffer;
-			m_hostIndices= newIndexBuffer;
-			fclose(file);
+			SceneSerializer::Deserialize(&m_scene, filepath->c_str());
 		}
 	}
 }

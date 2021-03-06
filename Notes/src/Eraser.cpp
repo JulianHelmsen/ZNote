@@ -97,7 +97,7 @@ namespace app {
 		float radius = m_size / m_context->scaleMatrix[0][0];
 		printf("%f\n", radius);
 
-		for(int i = indices.size() - 1; i >= 1; i -= 2) {
+		for(int i = (int) indices.size() - 1; i >= 1; i -= 2) {
 			uint32_t firstIdxOffset = i - 1;
 			uint32_t secondIdxOffset  = i;
 			uint32_t firstIdx = indices[firstIdxOffset];

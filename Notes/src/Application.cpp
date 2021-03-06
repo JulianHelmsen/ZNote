@@ -48,7 +48,7 @@ namespace app {
 		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*) sizeof(glm::vec2));
 
 		
-		m_program = utils::CreateShaderProgram();
+		m_program = utils::CreateLineShaderProgram();
 		glUseProgram(m_program);
 		
 		

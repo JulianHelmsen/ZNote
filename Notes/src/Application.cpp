@@ -8,6 +8,7 @@
 #include "Keycodes.h"
 #include "SceneSerializer.h"
 #include "Pencil.h"
+#include "Eraser.h"
 
 namespace app {
 
@@ -111,7 +112,7 @@ namespace app {
 		glDrawElements(primitive, (GLsizei) m_scene.hostIndices.size(), GL_UNSIGNED_INT, NULL);
 
 #if 0
-		uint32_t vramUsage = (uint32_t) (m_hostIndices.size() * sizeof(uint32_t) + m_hostVertices.size() * sizeof(Vertex));
+		uint32_t vramUsage = (uint32_t) (m_scene.hostIndices.size() * sizeof(uint32_t) + m_scene.hostVertices.size() * sizeof(Vertex));
 		printf("vram usage: %d\n", vramUsage);
 #endif
 	}
@@ -137,7 +138,11 @@ namespace app {
 
 
 	void Application::OnKeyPress(uint32_t keycode) {
-		if (m_currentTool)
+		if (keycode == KEY_E)
+			UseTool(new Eraser);
+		else if (keycode == KEY_P)
+			UseTool(new Pencil);
+		else if (m_currentTool)
 			m_currentTool->OnKeyPress(keycode);
 	}
 

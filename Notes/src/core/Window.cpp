@@ -113,7 +113,7 @@ void Window::Create() {
 		uint32_t newMousePosX = (uint32_t)x;
 		uint32_t newMousePosY = (uint32_t)y;
 
-		if (mousePressed) {
+		if (mousePressed && (newMousePosX != mouseX || newMousePosY != mouseY)) {
 			// mouse dragged somewhere else
 			Window::OnMouseDragged(mousePressed, mouseX, mouseY, newMousePosX, newMousePosY);
 		}

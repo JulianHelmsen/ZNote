@@ -8,8 +8,7 @@
 namespace app {
 
 	struct Vertex {
-		float x;
-		float y;
+		glm::vec2 position;
 		Color color;
 	};
 

@@ -45,7 +45,7 @@ namespace app {
 		glEnableVertexAttribArray(1); // color
 
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
-		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*) (sizeof(float) * 2));
+		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*) sizeof(glm::vec2));
 
 		
 		m_program = utils::CreateShaderProgram();

@@ -95,7 +95,6 @@ namespace app {
 
 		glm::vec2 mouseDir = newpos - prevMousePos;
 		float radius = m_size / m_context->scaleMatrix[0][0];
-		printf("%f\n", radius);
 
 		for(int i = (int) indices.size() - 1; i >= 1; i -= 2) {
 			uint32_t firstIdxOffset = i - 1;
@@ -106,18 +105,16 @@ namespace app {
 			Vertex& first = vertices[firstIdx];
 			Vertex& second = vertices[secondIdx];
 			
-			glm::vec2 pos1 = glm::vec2(first.x, first.y);
-			glm::vec2 pos2 = glm::vec2(second.x, second.y);
-			glm::vec2 dir = pos2 - pos1;
+			glm::vec2 dir = second.position - first.position;
 
 
 
 			float t;
 			float r;
-			CalculateIntersection(prevMousePos, mouseDir, pos1, dir, &t, &r);
+			CalculateIntersection(prevMousePos, mouseDir, first.position, dir, &t, &r);
 			bool intersects = t >= 0.0f && t <= 1.0f && r >= 0.0f && r <= 1.0f;
 
-			bool removeByDistance = glm::length(pos1 - newpos) < radius || glm::length(pos2 - newpos) < radius;
+			bool removeByDistance = glm::length(first.position - newpos) < radius || glm::length(second.position - newpos) < radius;
 			
 			if (intersects || removeByDistance)
 				RemoveLine(firstIdxOffset, secondIdxOffset);

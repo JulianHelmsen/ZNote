@@ -4,6 +4,7 @@
 #include "renderer/Batch.h"
 #include "Color.h"
 #include <glm/glm.hpp>
+#include <string>
 
 
 namespace app {
@@ -13,9 +14,24 @@ namespace app {
 		Color color;
 	};
 
+	struct ImageVertex {
+		glm::vec2 position;
+		glm::vec2 uv;
+		uint8_t textureId;
+	};
+
+	struct Image {
+		glm::vec2 centerPos;
+		glm::vec2 size;
+		
+		uint32_t textureId;
+		std::string filepath;
+	};
+
 
 	struct Scene {
 		renderer::Batch<Vertex> lineBatch;
+		std::vector<Image> images;
 
 		glm::mat4 viewProjectionMatrix = glm::mat4(1.0f);
 		glm::mat4 translationMatrix = glm::mat4(1.0f);

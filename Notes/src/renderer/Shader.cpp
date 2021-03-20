@@ -86,5 +86,31 @@ namespace utils {
 		return CreateShaderProgram(vertexSource, fragmentSource);
 	}
 
+	uint32_t CreateImageShaderProgram() {
+		std::string vertexSource = ""
+			"#version 400 core\n"
+			"layout(location = 0) in vec2 position;\n"
+			"layout(location = 1) in vec2 uv;\n"
+			"layout(location = 2) in uint texId;\n"
+			"uniform mat4 viewProjectionMatrix;\n"
+			"flat out uint f_texId;\n"
+			"out vec2 outUv;\n"
+			"void main() {\n"
+			"	gl_Position = viewProjectionMatrix * vec4(position, 0.0, 1.0);\n"
+			"	outUv = uv;\n"
+			"	f_texId = texId;\n"
+			"}\n";
+
+		std::string fragmentSource =
+			"#version 400 core\n"
+			"in vec2 outUv;\n"
+			"out vec4 outColor;\n"
+			"uniform sampler2D u_textures[32];\n"
+			"flat in uint f_texId;\n"
+			"void main() {\n"
+			"	outColor = texture(u_textures[f_texId], outUv);\n"
+			"}\n";
+		return CreateShaderProgram(vertexSource, fragmentSource);
+	}
 	
 }

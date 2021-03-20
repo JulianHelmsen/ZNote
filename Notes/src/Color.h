@@ -8,6 +8,7 @@
 #define LIGHT_BLUE (0x65D0FAFF)
 #define BLUE (0x4984F2FF)
 #define PURPLE (0xAB7DFFFF)
+#define GREEN (0x73FF66FF)
 
 namespace app {
 	union Color{

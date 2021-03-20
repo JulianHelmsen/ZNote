@@ -1,15 +1,15 @@
 #include "Application.h"
 #include <GL/glew.h>
-#include "renderer/Shader.h"
 #include "renderer/RenderDefaults.h"
 #include "os/Utils.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include "Keycodes.h"
 #include "SceneSerializer.h"
 #include "Pencil.h"
 #include "Eraser.h"
 #include "renderer/Renderer2D.h"
+#include "renderer/TextureLoader.h"
+#include <stdio.h>
 
 namespace app {
 
@@ -40,6 +40,23 @@ namespace app {
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 		UseTool(new Pencil);
+
+		for (int i = 0; i < 10; i++) {
+			char buffer[1000];// 
+			sprintf(buffer, "C:/Users/julia/Pictures/chess/first/%d.png", i);
+			Image image;
+			image.centerPos = glm::vec2(i * (1.1f), 0.0f);
+			image.size = glm::vec2(1.0f, 0.5f);
+			image.textureId = utils::TextureLoader::LoadTexture(buffer);
+			m_scene.images.push_back(image);
+		}
+		
+
+		Image image2;
+		image2.centerPos = glm::vec2(2.0f, 0.0f);
+		image2.size = glm::vec2(1.0f, 0.5f);
+		image2.textureId = utils::TextureLoader::LoadTexture("C:/Users/julia/Pictures/backup/20190613_231720.jpg");
+		m_scene.images.push_back(image2);
 		
 	}
 
@@ -67,8 +84,7 @@ namespace app {
 			m_scene.translationMatrix[3][1] -= normalizedOld.y - normalized.y;
 		}else if (m_currentTool && button == 0) {
 			m_currentTool->OnDrag(normalizedOld, normalized, button);
-		}
-			
+		}			
 	}
 
 	void Application::OnMouseButtonStateChanged(MouseButton button, uint32_t x, uint32_t y, bool isdown) {
@@ -82,8 +98,16 @@ namespace app {
 		m_scene.viewProjectionMatrix = m_scene.scaleMatrix * m_scene.translationMatrix;
 		glClear(GL_COLOR_BUFFER_BIT);
 		Renderer2D::Begin(m_scene.viewProjectionMatrix);
-		Renderer2D::DrawBatch(m_scene.lineBatch);
+		for (const Image& image : m_scene.images) {
+			Renderer2D::DrawImage(image.textureId, image.centerPos - image.size * 0.5f, image.size);
+		}
 		Renderer2D::End();
+
+		Renderer2D::Begin(m_scene.viewProjectionMatrix);
+		Renderer2D::DrawBatch(m_scene.lineBatch);		
+		Renderer2D::End();
+
+		
 	}
 
 	void Application::Run() {

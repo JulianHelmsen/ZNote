@@ -59,6 +59,7 @@ namespace renderer {
 
 		std::vector<VertexType>& GetVertexList() const { return vertices; };
 		std::vector<uint32_t>& GetIndexList() const { return indices; };
+		void Clear() { vertices.clear(); indices.clear(); }
 		
 	private:
 		mutable std::vector<VertexType> vertices;

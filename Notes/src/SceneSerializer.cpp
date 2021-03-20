@@ -7,16 +7,19 @@ namespace app {
 		FILE* file;
 		fopen_s(&file, filepath, "wb");
 
+		const std::vector<Vertex>& lineVertices = scene.lineBatch.GetVertexList();
+		const std::vector<uint32_t>& lineIndices = scene.lineBatch.GetIndexList();
+
 		// write number of vertex buffer
-		uint32_t sizeHeader = (uint32_t)scene.hostVertices.size();
+		uint32_t sizeHeader = (uint32_t) lineVertices.size();
 		fwrite(&sizeHeader, sizeof(sizeHeader), 1, file);
 		// write vertex buffer data
-		fwrite(scene.hostVertices.data(), sizeof(Vertex), scene.hostVertices.size(), file);
+		fwrite(lineVertices.data(), sizeof(Vertex), lineVertices.size(), file);
 		// write number of index buffer
-		sizeHeader = (uint32_t)scene.hostIndices.size();
+		sizeHeader = (uint32_t)lineIndices.size();
 		fwrite(&sizeHeader, sizeof(sizeHeader), 1, file);
 		// write index buffer data
-		fwrite(scene.hostIndices.data(), sizeof(uint32_t), scene.hostIndices.size(), file);
+		fwrite(lineIndices.data(), sizeof(uint32_t), lineIndices.size(), file);
 		// write scale matrix
 		fwrite(glm::value_ptr(scene.scaleMatrix), sizeof(glm::mat4), 1, file);
 		// write translation matrix
@@ -27,23 +30,24 @@ namespace app {
 	}
 
 	void SceneSerializer::Deserialize(Scene* scene, const char* filepath) {
+		std::vector<Vertex>& lineVertices = scene->lineBatch.GetVertexList();
+		std::vector<uint32_t>& lineIndices = scene->lineBatch.GetIndexList();
+
 		FILE* file;
 		fopen_s(&file, filepath, "rb");
 		uint32_t elemCount;
 		// read number of vertices
 		fread_s(&elemCount, sizeof(elemCount), sizeof(uint32_t), 1, file);
 		// read vertex buffer
-		std::vector<Vertex> newVertexBuffer;
-		newVertexBuffer.resize(elemCount);
-		fread_s(newVertexBuffer.data(), elemCount * sizeof(Vertex), sizeof(Vertex), elemCount, file);
+		lineVertices.resize(elemCount);
+		fread_s(lineVertices.data(), elemCount * sizeof(Vertex), sizeof(Vertex), elemCount, file);
 
 		// read number of indices
 		fread_s(&elemCount, sizeof(elemCount), sizeof(uint32_t), 1, file);
 
 		// read index buffer
-		std::vector<uint32_t> newIndexBuffer;
-		newIndexBuffer.resize(elemCount);
-		fread_s(newIndexBuffer.data(), elemCount * sizeof(uint32_t), sizeof(uint32_t), elemCount, file);
+		lineIndices.resize(elemCount);
+		fread_s(lineIndices.data(), elemCount * sizeof(uint32_t), sizeof(uint32_t), elemCount, file);
 
 		// read scale matrix
 		fread_s(glm::value_ptr(scene->scaleMatrix), sizeof(scene->scaleMatrix), sizeof(scene->scaleMatrix), 1, file);
@@ -51,8 +55,6 @@ namespace app {
 		// read translation matrix
 		fread_s(glm::value_ptr(scene->translationMatrix), sizeof(scene->translationMatrix), sizeof(scene->translationMatrix), 1, file);
 
-		scene->hostVertices = newVertexBuffer;
-		scene->hostIndices = newIndexBuffer;
 		fclose(file);
 	}
 }

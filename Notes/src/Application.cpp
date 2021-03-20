@@ -9,6 +9,7 @@
 #include "SceneSerializer.h"
 #include "Pencil.h"
 #include "Eraser.h"
+#include "renderer/Renderer2D.h"
 
 namespace app {
 
@@ -33,27 +34,8 @@ namespace app {
 		Window::SetMouseButtonCallback(std::bind(&Application::OnMouseButtonStateChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 		glewInit();
 		renderer::SetRenderDefaults();
+		Renderer2D::Initialize();
 
-		glGenVertexArrays(1, &m_vao);
-		glBindVertexArray(m_vao);
-		glGenBuffers(1, &m_vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-		glGenBuffers(1, &m_ibo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-
-		glEnableVertexAttribArray(0); // position
-		glEnableVertexAttribArray(1); // color
-
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
-		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*) sizeof(glm::vec2));
-
-		
-		m_program = utils::CreateLineShaderProgram();
-		glUseProgram(m_program);
-		
-		
-		m_uniformLocationViewProjection = glGetUniformLocation(m_program, "viewProjectionMatrix");
-		glUniformMatrix4fv(m_uniformLocationViewProjection, 1, GL_FALSE, glm::value_ptr(m_scene.scaleMatrix));
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
@@ -97,24 +79,11 @@ namespace app {
 
 	void Application::Update() {
 		// clear screen buffer
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		// calculate and set new projection matrix
 		m_scene.viewProjectionMatrix = m_scene.scaleMatrix * m_scene.translationMatrix;
-		glUniformMatrix4fv(m_uniformLocationViewProjection, 1, GL_FALSE, glm::value_ptr(m_scene.viewProjectionMatrix));
-
-		// copy host index and vertex buffer to gpu
-		glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr) m_scene.hostVertices.size() * sizeof(Vertex), m_scene.hostVertices.data(), GL_DYNAMIC_DRAW);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)m_scene.hostIndices.size() * sizeof(uint32_t), m_scene.hostIndices.data(), GL_DYNAMIC_DRAW);
-
-		// Draw
-		constexpr GLenum primitive = GL_LINES;
-		glDrawElements(primitive, (GLsizei) m_scene.hostIndices.size(), GL_UNSIGNED_INT, NULL);
-
-#if 0
-		uint32_t vramUsage = (uint32_t) (m_scene.hostIndices.size() * sizeof(uint32_t) + m_scene.hostVertices.size() * sizeof(Vertex));
-		printf("vram usage: %d\n", vramUsage);
-#endif
+		glClear(GL_COLOR_BUFFER_BIT);
+		Renderer2D::Begin(m_scene.viewProjectionMatrix);
+		Renderer2D::DrawBatch(m_scene.lineBatch);
+		Renderer2D::End();
 	}
 
 	void Application::Run() {
@@ -126,10 +95,7 @@ namespace app {
 	}
 
 	void Application::OnClose() {
-		glDeleteProgram(m_program);
-		glDeleteBuffers(1, &m_vbo);
-		glDeleteBuffers(1, &m_ibo);
-		glDeleteVertexArrays(1, &m_vao);
+		Renderer2D::CleanUp();
 
 		Window::Destroy();
 		if (m_currentTool)

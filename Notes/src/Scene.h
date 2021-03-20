@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "renderer/Batch.h"
 #include "Color.h"
 #include <glm/glm.hpp>
 
@@ -14,8 +15,7 @@ namespace app {
 
 
 	struct Scene {
-		std::vector<uint32_t> hostIndices;
-		std::vector<Vertex> hostVertices;
+		renderer::Batch<Vertex> lineBatch;
 
 		glm::mat4 viewProjectionMatrix = glm::mat4(1.0f);
 		glm::mat4 translationMatrix = glm::mat4(1.0f);

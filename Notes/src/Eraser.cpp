@@ -36,20 +36,22 @@ namespace app {
 	}
 
 	uint32_t Eraser::GetVertexUsageCount(const Scene* context, uint32_t indexBufferOffset) {
-		uint32_t vertexIdx = context->hostIndices[indexBufferOffset];
+		const renderer::Batch<Vertex>& batch = context->lineBatch;
+		uint32_t vertexIdx = batch.GetIndexList()[indexBufferOffset];
 		uint32_t usageCount = 1;
 
-		if (indexBufferOffset > 0 && context->hostIndices[indexBufferOffset - 1] == vertexIdx)
+		if (indexBufferOffset > 0 && batch.GetIndexList()[indexBufferOffset - 1] == vertexIdx)
 			usageCount++;
 
-		if ((indexBufferOffset + 1) < (uint32_t) context->hostIndices.size() && context->hostIndices[indexBufferOffset + 1] == vertexIdx)
+		if ((indexBufferOffset + 1) < (uint32_t) batch.GetNumIndices() && batch.GetIndexList()[indexBufferOffset + 1] == vertexIdx)
 			usageCount++;
 
 		return usageCount;
 	}
 	void Eraser::RemoveLine(uint32_t idxBufferOffset1, uint32_t idxBufferOffset2) {
-		std::vector<uint32_t>& indices = m_context->hostIndices;
-		std::vector<Vertex>& vertices = m_context->hostVertices;
+		renderer::Batch<Vertex>& batch = m_context->lineBatch;
+		std::vector<uint32_t>& indices = batch.GetIndexList();
+		std::vector<Vertex>& vertices = batch.GetVertexList();
 		uint32_t firstIdx = indices[idxBufferOffset1];
 		uint32_t secondIdx = indices[idxBufferOffset2];
 		// Remove indices and possibly vertices
@@ -90,8 +92,9 @@ namespace app {
 	}
 
 	void Eraser::OnDrag(const glm::vec2& prevMousePos, const glm::vec2& newpos, int button) {
-		std::vector<uint32_t>& indices = m_context->hostIndices;
-		std::vector<Vertex>& vertices = m_context->hostVertices;
+		renderer::Batch<Vertex>& batch = m_context->lineBatch;
+		std::vector<uint32_t>& indices = batch.GetIndexList();
+		std::vector<Vertex>& vertices = batch.GetVertexList();
 
 		glm::vec2 mouseDir = newpos - prevMousePos;
 		float radius = m_size / m_context->scaleMatrix[0][0];

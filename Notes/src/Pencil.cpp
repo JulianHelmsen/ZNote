@@ -16,12 +16,18 @@ namespace app {
 	
 
 	void Pencil::OnDrag(const glm::vec2& prev, const glm::vec2& newpos, int button) {
+		
 		// check if the last line is connected to this one and wether they can be merged into one line segment
 		if (m_newStroke) {
-			m_context->hostIndices.push_back((uint32_t) m_context->hostVertices.size());
-			m_context->hostVertices.push_back({ prev, GetColor() });
-			m_context->hostIndices.push_back((uint32_t) m_context->hostVertices.size());
-			m_context->hostVertices.push_back({ newpos, GetColor() });
+			renderer::Batch<Vertex>& batch = m_context->lineBatch;
+			renderer::SubMesh<Vertex> mesh;
+
+			mesh.Vertex({ prev, GetColor() });
+			mesh.Vertex({ newpos, GetColor() });
+			mesh.Index(0);
+			mesh.Index(1);
+
+			batch.Insert(mesh);
 			m_newStroke = false; // until release
 		}else {
 			AddLineSegment(newpos);
@@ -50,8 +56,10 @@ namespace app {
 	}
 
 	void Pencil::AddLineSegment(const glm::vec2& newpos) {
-		Vertex& last = m_context->hostVertices[m_context->hostVertices.size() - 1];
-		const Vertex& penultimate = m_context->hostVertices[m_context->hostVertices.size() - 2];
+		renderer::Batch<Vertex>& batch = m_context->lineBatch;
+		std::vector<Vertex>& vertices = batch.GetVertexList();
+		Vertex& last = vertices[vertices.size() - 1];
+		const Vertex& penultimate = vertices[vertices.size() - 2];
 		
 		glm::vec2 prevDir = last.position - penultimate.position;
 		glm::vec2 currDir = newpos - last.position;
@@ -77,9 +85,9 @@ namespace app {
 		if (distanceRatio < distanceRatioThreshold && t > 0.0f && oldLineLen < extendedLineLen) {
 			last.position = newpos;
 		}else {
-			m_context->hostIndices.push_back((uint32_t)m_context->hostVertices.size() - 1);
-			m_context->hostIndices.push_back((uint32_t)m_context->hostVertices.size());
-			m_context->hostVertices.push_back({ newpos, GetColor() });
+			batch.InsertIndex(batch.GetNumVertices() - 1);
+			batch.InsertIndex(batch.GetNumVertices());
+			batch.InsertVertex({ newpos, GetColor() });
 		}
 	}
 }

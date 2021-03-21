@@ -7,6 +7,8 @@ enum class MouseButton : uint32_t {
 	Right = 1
 };
 
+#define KEY_MOD_CONTROL (0x0002)
+
 #define KEY_SPACE              32
 #define KEY_APOSTROPHE         39 
 #define KEY_COMMA              44 

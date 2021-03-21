@@ -23,10 +23,8 @@ public:
 	static void SetDragCallback(std::function<void(uint32_t, uint32_t, uint32_t, uint32_t, int button)> callback);
 	static void SetResizeCallback(std::function<void()> resizeCallback);
 	static void SetScrollWheelCallback(std::function<void(int)> callback);
-	static void SetSaveCallback(std::function<void()> callback);
-	static void SetLoadCallback(std::function<void()> callback);
 	static void SetMouseButtonCallback(std::function<void(MouseButton, uint32_t, uint32_t, bool)> callback);
-	static void SetKeyCallback(std::function<void(uint32_t)> key);
+	static void SetKeyCallback(std::function<void(uint32_t, uint32_t)> key);
 	
 private:
 	static void OnMouseDragged(int button, uint32_t x, uint32_t y, uint32_t nx, uint32_t ny);

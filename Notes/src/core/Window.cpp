@@ -15,10 +15,8 @@ static struct {
 	std::function<void()> resize;
 	std::function<void(uint32_t, uint32_t, uint32_t, uint32_t, int button)> drag;
 	std::function<void(int)> scrollWheel;
-	std::function<void()> load;
-	std::function<void()> save;
 	std::function<void(MouseButton, uint32_t, uint32_t, bool)> buttonCallback;
-	std::function<void(uint32_t)> key;
+	std::function<void(uint32_t, uint32_t)> key;
 }s_callbacks;
 
 void Window::OnMouseDragged(int button, uint32_t x, uint32_t y, uint32_t nx, uint32_t ny) {
@@ -37,7 +35,7 @@ void Window::OnMouseDragged(int button, uint32_t x, uint32_t y, uint32_t nx, uin
 		s_callbacks.drag(x, y, nx, ny, button);
 }
 
-void Window::SetKeyCallback(std::function<void(uint32_t)> key) {
+void Window::SetKeyCallback(std::function<void(uint32_t, uint32_t)> key) {
 	s_callbacks.key = key;
 }
 
@@ -53,13 +51,6 @@ void Window::SetScrollWheelCallback(std::function<void(int)> callback) {
 	s_callbacks.scrollWheel = callback;
 }
 
-void Window::SetSaveCallback(std::function<void()> callback) {
-	s_callbacks.save = callback;
-}
-
-void Window::SetLoadCallback(std::function<void()> callback) {
-	s_callbacks.load = callback;
-}
 
 void Window::SetMouseButtonCallback(std::function<void(MouseButton, uint32_t, uint32_t, bool)> callback) {
 	s_callbacks.buttonCallback = callback;
@@ -134,14 +125,8 @@ void Window::Create() {
 	});
 
 	glfwSetKeyCallback(s_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) -> void {
-		if (mods & GLFW_MOD_CONTROL && action == GLFW_RELEASE) {
-			if (key == GLFW_KEY_S && s_callbacks.save) {
-				s_callbacks.save();
-			}else if (key == GLFW_KEY_O && s_callbacks.load) {
-				s_callbacks.load();
-			}
-		}else if (action == GLFW_PRESS && s_callbacks.key) {
-			s_callbacks.key(key);
+		if (action == GLFW_PRESS && s_callbacks.key) {
+			s_callbacks.key(key, mods);
 		}
 	});
 

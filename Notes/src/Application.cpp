@@ -27,10 +27,8 @@ namespace app {
 		Window::Create();
 		Window::SetDragCallback(std::bind(&Application::OnMouseDragged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
 		Window::SetResizeCallback(std::bind(&Application::OnResize, this));
-		Window::SetSaveCallback(std::bind(&Application::Save, this));
-		Window::SetLoadCallback(std::bind(&Application::Load, this));
 		Window::SetScrollWheelCallback(std::bind(&Application::OnScroll, this, std::placeholders::_1));
-		Window::SetKeyCallback(std::bind(&Application::OnKeyPress, this, std::placeholders::_1));
+		Window::SetKeyCallback(std::bind(&Application::OnKeyPress, this, std::placeholders::_1, std::placeholders::_2));
 		Window::SetMouseButtonCallback(std::bind(&Application::OnMouseButtonStateChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 		glewInit();
 		renderer::SetRenderDefaults();
@@ -112,13 +110,19 @@ namespace app {
 	}
 
 
-	void Application::OnKeyPress(uint32_t keycode) {
-		if (keycode == KEY_E)
-			UseTool(new Eraser);
+	void Application::OnKeyPress(uint32_t keycode, uint32_t mods) {
+		if (mods & KEY_MOD_CONTROL && keycode == KEY_S)
+			Save();
+		else if (mods & KEY_MOD_CONTROL && keycode == KEY_O)
+			Load();
+		else if (keycode == KEY_E)
+				UseTool(new Eraser);
 		else if (keycode == KEY_P)
 			UseTool(new Pencil);
 		else if (m_currentTool)
-			m_currentTool->OnKeyPress(keycode);
+				m_currentTool->OnKeyPress(keycode);
+		
+		
 	}
 
 	void Application::OnScroll(int dir) {

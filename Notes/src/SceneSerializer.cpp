@@ -1,5 +1,7 @@
 #include "SceneSerializer.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <GL/glew.h>
+#include <stdio.h>
 
 namespace app {
 
@@ -27,14 +29,28 @@ namespace app {
 
 
 		fclose(file);
+		printf("Saved to file \"%s\"\n", filepath);
 	}
 
 	void SceneSerializer::Deserialize(Scene* scene, const char* filepath) {
 		std::vector<Vertex>& lineVertices = scene->lineBatch.GetVertexList();
 		std::vector<uint32_t>& lineIndices = scene->lineBatch.GetIndexList();
 
+
+		printf("Load from file \"%s\"\n", filepath);
+
 		FILE* file;
 		fopen_s(&file, filepath, "rb");
+		if (!file) {
+			printf("Can not read from file \"%s\"\n", filepath);
+			return;
+		}
+			
+
+		for (Image& image : scene->images)
+			glDeleteTextures(1, &image.textureId);
+		scene->images.clear();
+
 		uint32_t elemCount;
 		// read number of vertices
 		fread_s(&elemCount, sizeof(elemCount), sizeof(uint32_t), 1, file);
@@ -54,6 +70,7 @@ namespace app {
 
 		// read translation matrix
 		fread_s(glm::value_ptr(scene->translationMatrix), sizeof(scene->translationMatrix), sizeof(scene->translationMatrix), 1, file);
+
 
 		fclose(file);
 	}

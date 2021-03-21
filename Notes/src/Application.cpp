@@ -41,22 +41,6 @@ namespace app {
 
 		UseTool(new Pencil);
 
-		for (int i = 0; i < 10; i++) {
-			char buffer[1000];// 
-			sprintf(buffer, "C:/Users/julia/Pictures/chess/first/%d.png", i);
-			Image image;
-			image.centerPos = glm::vec2(i * (1.1f), 0.0f);
-			image.size = glm::vec2(1.0f, 0.5f);
-			image.textureId = utils::TextureLoader::LoadTexture(buffer);
-			m_scene.images.push_back(image);
-		}
-		
-
-		Image image2;
-		image2.centerPos = glm::vec2(2.0f, 0.0f);
-		image2.size = glm::vec2(1.0f, 0.5f);
-		image2.textureId = utils::TextureLoader::LoadTexture("C:/Users/julia/Pictures/backup/20190613_231720.jpg");
-		m_scene.images.push_back(image2);
 		
 	}
 

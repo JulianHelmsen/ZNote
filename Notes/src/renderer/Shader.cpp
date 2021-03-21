@@ -53,12 +53,6 @@ namespace utils {
 
 		return programId;
 	}
-#if 0
-	a = (color & 0xFF;
-	b = (color >> 8) & 0xFF;
-	g = (color >> 16) & 0xFF;
-	r = (color >> 24) & 0xFF;
-#endif
 
 	uint32_t CreateLineShaderProgram() {
 		std::string vertexSource = ""

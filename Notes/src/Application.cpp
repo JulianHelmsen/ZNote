@@ -103,6 +103,7 @@ namespace app {
 	}
 
 	void Application::OnClose() {
+		Scene::CleanUp(m_scene);
 		Renderer2D::CleanUp();
 
 		Window::Destroy();

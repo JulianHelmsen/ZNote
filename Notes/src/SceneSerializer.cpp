@@ -1,6 +1,5 @@
 #include "SceneSerializer.h"
 #include <glm/gtc/type_ptr.hpp>
-#include <GL/glew.h>
 #include <stdio.h>
 
 namespace app {
@@ -46,10 +45,7 @@ namespace app {
 			return;
 		}
 			
-
-		for (Image& image : scene->images)
-			glDeleteTextures(1, &image.textureId);
-		scene->images.clear();
+		Scene::CleanUp(*scene);
 
 		uint32_t elemCount;
 		// read number of vertices

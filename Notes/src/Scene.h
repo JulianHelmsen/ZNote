@@ -37,5 +37,7 @@ namespace app {
 		glm::mat4 translationMatrix = glm::mat4(1.0f);
 		glm::mat4 scaleMatrix = glm::mat4(1.0f);
 
+		static void CleanUp(Scene& scene);
+
 	};
 }

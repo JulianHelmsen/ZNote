@@ -1,6 +1,7 @@
 #include "SceneSerializer.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <stdio.h>
+#include "renderer/TextureLoader.h"
 
 namespace app {
 
@@ -25,6 +26,20 @@ namespace app {
 		fwrite(glm::value_ptr(scene.scaleMatrix), sizeof(glm::mat4), 1, file);
 		// write translation matrix
 		fwrite(glm::value_ptr(scene.translationMatrix), sizeof(glm::mat4), 1, file);
+
+		// serialize images
+		uint32_t numImages = (uint32_t) scene.images.size();
+		fwrite(&numImages, sizeof(numImages), 1, file);
+
+		for (const Image& image : scene.images) {
+			// write filepath
+			uint32_t filepathLen = (uint32_t) image.filepath.size();
+			fwrite(&filepathLen, sizeof(filepathLen), 1, file);
+			fwrite(image.filepath.c_str(), sizeof(char), filepathLen, file);
+			fwrite(&image.centerPos, sizeof(glm::vec2), 1, file);
+			fwrite(&image.size, sizeof(glm::vec2), 1, file);
+		}
+
 
 
 		fclose(file);
@@ -67,6 +82,21 @@ namespace app {
 		// read translation matrix
 		fread_s(glm::value_ptr(scene->translationMatrix), sizeof(scene->translationMatrix), sizeof(scene->translationMatrix), 1, file);
 
+		uint32_t numTextures;
+		fread_s(&numTextures, sizeof(uint32_t), sizeof(uint32_t), 1, file);
+		scene->images.reserve(numTextures);
+		for (uint32_t i = 0; i < numTextures; i++) {
+			uint32_t filepathLen;
+			fread_s(&filepathLen, sizeof(filepathLen), sizeof(filepathLen), 1, file);
+
+			Image image;
+			image.filepath.resize(filepathLen);
+			fread_s((char*) image.filepath.c_str(), filepathLen, sizeof(char), filepathLen, file);
+			image.textureId = utils::TextureLoader::LoadTexture(image.filepath.c_str());
+			fread_s(&image.centerPos, sizeof(glm::vec2), sizeof(glm::vec2), 1, file);
+			fread_s(&image.size, sizeof(glm::vec2), sizeof(glm::vec2), 1, file);
+			scene->images.push_back(image);
+		}
 
 		fclose(file);
 	}

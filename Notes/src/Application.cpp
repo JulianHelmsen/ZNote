@@ -116,11 +116,29 @@ namespace app {
 		else if (mods & KEY_MOD_CONTROL && keycode == KEY_O)
 			Load();
 		else if (keycode == KEY_E)
-				UseTool(new Eraser);
+			UseTool(new Eraser);
 		else if (keycode == KEY_P)
 			UseTool(new Pencil);
+		else if (keycode == KEY_I) {
+			// load image and add it to scene
+			std::optional<std::string> filepath = os::ShowOpenDialog(NULL);
+			if (filepath) {
+				Image image;
+				image.textureId = utils::TextureLoader::LoadTexture(filepath->c_str(), &image.size);
+				float aspectRatio = image.size.x / image.size.y;
+				image.centerPos = -glm::vec2(m_scene.translationMatrix[3]);
+
+				float height = 0.5f / m_scene.scaleMatrix[0][0];
+				float width = aspectRatio * height;
+				image.size.x = width;
+				image.size.y = height;
+				image.filepath = *filepath;
+				m_scene.images.push_back(image);
+			}
+		}
 		else if (m_currentTool)
-				m_currentTool->OnKeyPress(keycode);
+			m_currentTool->OnKeyPress(keycode);
+		
 		
 		
 	}

@@ -6,7 +6,7 @@
 
 namespace utils {
 
-	uint32_t TextureLoader::LoadTexture(const char* filepath) {
+	uint32_t TextureLoader::LoadTexture(const char* filepath, glm::vec2* size) {
 		stbi_set_flip_vertically_on_load(true);
 		
 		uint32_t texId;
@@ -25,6 +25,11 @@ namespace utils {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
 		stbi_image_free(data);
+
+		if (size) {
+			size->x = (float) textureWidth;
+			size->y = (float) textureHeight;
+		}
 		return texId;
 	}
 }

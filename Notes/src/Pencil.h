@@ -16,6 +16,7 @@ namespace app {
 		void AddLineSegment(const glm::vec2& newpos);
 		bool m_newStroke;
 		Color colorPallete[8];
-		uint32_t colorPalleteIdx;
+		static uint32_t colorPalleteIdx;
+
 	};
 }

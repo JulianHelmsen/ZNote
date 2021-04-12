@@ -3,7 +3,9 @@
 
 namespace app {
 
-	Pencil::Pencil() : colorPalleteIdx(0), m_newStroke(true) {
+	uint32_t Pencil::colorPalleteIdx = 0;
+
+	Pencil::Pencil() : m_newStroke(true) {
 		colorPallete[0] = PINK;
 		colorPallete[1] = WHITE;
 		colorPallete[2] = CORAL;

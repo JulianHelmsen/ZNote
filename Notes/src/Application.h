@@ -45,6 +45,7 @@ namespace app {
 		Scene m_scene;
 		Tool* m_currentTool = NULL;
 		glm::mat4 m_projectionMatrix;
+		glm::mat4 m_viewProjectionMatrix;
 		
 	};
 }

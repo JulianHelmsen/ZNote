@@ -20,6 +20,7 @@ project "Notes"
 
 	includedirs {
 		"external libraries/glm",
+		"external libraries/stb",
 		"Notes/src",
 		"external libraries/GLFW/include",
 		"external libraries/GLEW/include"

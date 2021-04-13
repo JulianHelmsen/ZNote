@@ -63,7 +63,7 @@ namespace app {
 
 
 	void Application::OnMouseDragged(uint32_t oldX, uint32_t oldY, uint32_t x, uint32_t y, int button) {
-		glm::mat4 inverse = glm::inverse(m_scene.viewProjectionMatrix);
+		glm::mat4 inverse = glm::inverse(m_viewProjectionMatrix);
 		glm::vec2 normalizedOld = inverse * glm::vec4(Normalize(oldX, oldY), 0.0f, 1.0f);
 		glm::vec2 normalized = inverse * glm::vec4(Normalize(x, y), 0.0f, 1.0f);
 
@@ -82,15 +82,16 @@ namespace app {
 
 	void Application::Update() {
 		// clear screen buffer
-		m_scene.viewProjectionMatrix = m_projectionMatrix * m_scene.scaleMatrix * m_scene.translationMatrix;
+		m_scene.viewMatrix = m_scene.scaleMatrix * m_scene.translationMatrix;
+		m_viewProjectionMatrix = m_projectionMatrix * m_scene.viewMatrix;
 		glClear(GL_COLOR_BUFFER_BIT);
-		Renderer2D::Begin(m_scene.viewProjectionMatrix);
+		Renderer2D::Begin(m_viewProjectionMatrix);
 		for (const Image& image : m_scene.images) {
 			Renderer2D::DrawImage(image.textureId, image.centerPos - image.size * 0.5f, image.size);
 		}
 		Renderer2D::End();
 
-		Renderer2D::Begin(m_scene.viewProjectionMatrix);
+		Renderer2D::Begin(m_viewProjectionMatrix);
 		Renderer2D::DrawBatch(m_scene.lineBatch);		
 		Renderer2D::End();
 

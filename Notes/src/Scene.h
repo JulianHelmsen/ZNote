@@ -33,7 +33,7 @@ namespace app {
 		renderer::Batch<Vertex> lineBatch;
 		std::vector<Image> images;
 
-		glm::mat4 viewProjectionMatrix = glm::mat4(1.0f);
+		glm::mat4 viewMatrix = glm::mat4(1.0f);
 		glm::mat4 translationMatrix = glm::mat4(1.0f);
 		glm::mat4 scaleMatrix = glm::mat4(1.0f);
 

@@ -8,6 +8,9 @@
 
 class Window {
 public:
+	/**
+	* Should be called after added event listeners
+	*/
 	static void Create();
 	static void Destroy();
 	static void PollEvents();

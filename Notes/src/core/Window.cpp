@@ -78,7 +78,8 @@ uint32_t Window::GetHeight() {
 void Window::Create() {
 	glfwInit();
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	s_window = glfwCreateWindow(1020, 720, "ZNote", NULL, NULL);
+	constexpr uint32_t defaultWidth = 1020, defaultHeight = 720;
+	s_window = glfwCreateWindow(defaultWidth, defaultHeight, "ZNote", NULL, NULL);
 	glfwMakeContextCurrent(s_window);
 
 	glfwSetMouseButtonCallback(s_window, [](GLFWwindow* window, int button, int action, int mods) -> void {
@@ -130,6 +131,8 @@ void Window::Create() {
 		}
 	});
 
+	if (s_callbacks.resize)
+		s_callbacks.resize();
 	
 }
 

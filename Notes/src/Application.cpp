@@ -24,12 +24,12 @@ namespace app {
 
 
 	Application::Application() {
-		Window::Create();
 		Window::SetDragCallback(std::bind(&Application::OnMouseDragged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
 		Window::SetResizeCallback(std::bind(&Application::OnResize, this));
 		Window::SetScrollWheelCallback(std::bind(&Application::OnScroll, this, std::placeholders::_1));
 		Window::SetKeyCallback(std::bind(&Application::OnKeyPress, this, std::placeholders::_1, std::placeholders::_2));
 		Window::SetMouseButtonCallback(std::bind(&Application::OnMouseButtonStateChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+		Window::Create();
 		glewInit();
 		renderer::SetRenderDefaults();
 		Renderer2D::Initialize();
@@ -52,7 +52,13 @@ namespace app {
 
 
 	void Application::OnResize() {
-		glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
+		uint32_t width = Window::GetWidth();
+		uint32_t height = Window::GetHeight();
+		glViewport(0, 0, width, height);
+		const float aspectRatio = (float) width / height;
+		constexpr float normalizedHalfHeight = 1.0f;
+		const float normalizedHalfWidth = aspectRatio * normalizedHalfHeight;
+		m_projectionMatrix = glm::ortho(-normalizedHalfWidth, normalizedHalfWidth, -normalizedHalfHeight, normalizedHalfHeight);
 	}
 
 
@@ -74,10 +80,9 @@ namespace app {
 			m_currentTool->OnButtonStateChanged(button, isdown);
 	}
 
-
 	void Application::Update() {
 		// clear screen buffer
-		m_scene.viewProjectionMatrix = m_scene.scaleMatrix * m_scene.translationMatrix;
+		m_scene.viewProjectionMatrix = m_projectionMatrix * m_scene.scaleMatrix * m_scene.translationMatrix;
 		glClear(GL_COLOR_BUFFER_BIT);
 		Renderer2D::Begin(m_scene.viewProjectionMatrix);
 		for (const Image& image : m_scene.images) {

@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include "core/Window.h"
 #include "Scene.h"
-#include "Tool.h"
+#include "tools/Tool.h"
 
 namespace app {
 

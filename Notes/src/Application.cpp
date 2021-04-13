@@ -5,8 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Keycodes.h"
 #include "SceneSerializer.h"
-#include "Pencil.h"
-#include "Eraser.h"
+#include "tools/Pencil.h"
+#include "tools/Eraser.h"
 #include "renderer/Renderer2D.h"
 #include "renderer/TextureLoader.h"
 #include <stdio.h>

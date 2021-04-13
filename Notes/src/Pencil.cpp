@@ -1,5 +1,6 @@
 #include "Pencil.h"
 #include "Keycodes.h"
+#include <glm/gtx/norm.hpp>
 
 namespace app {
 
@@ -74,7 +75,7 @@ namespace app {
 		// p: newpos
 		// calculate parameter
 		glm::vec2 posDiff = newpos - last.position;
-		const float t = glm::dot(posDiff, prevDir) / (prevDir.x * prevDir.x + prevDir.y * prevDir.y);
+		const float t = glm::dot(posDiff, prevDir) / glm::length2(prevDir);
 		glm::vec2 nearestPointOnExtendedLine = last.position + t * prevDir;
 		float distanceToPoint = glm::length(nearestPointOnExtendedLine - newpos);
 		float extendedLineLen = glm::length(nearestPointOnExtendedLine - penultimate.position);

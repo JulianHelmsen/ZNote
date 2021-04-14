@@ -37,7 +37,7 @@ namespace app {
 		}
 	}
 
-	void Pencil::OnButtonStateChanged(MouseButton button, bool down) {
+	void Pencil::OnButtonStateChanged(MouseButton button, const glm::vec2& pos, bool down) {
 		if (button == MouseButton::WHEEL && down) {
 			colorPalleteIdx++;
 			if (colorPalleteIdx >= sizeof(colorPallete) / sizeof(Color))
@@ -54,9 +54,6 @@ namespace app {
 			colorPalleteIdx = keycode - KEY_1;
 	}
 
-	void Pencil::OnScroll(int dir) {
-
-	}
 
 	void Pencil::AddLineSegment(const glm::vec2& newpos) {
 		renderer::Batch<Vertex>& batch = m_context->lineBatch;

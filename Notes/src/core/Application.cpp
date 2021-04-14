@@ -7,6 +7,7 @@
 #include "SceneSerializer.h"
 #include "tools/Pencil.h"
 #include "tools/Eraser.h"
+#include "tools/TransformTool.h"
 #include "renderer/Renderer2D.h"
 #include "renderer/TextureLoader.h"
 #include <stdio.h>
@@ -76,8 +77,10 @@ namespace app {
 	}
 
 	void Application::OnMouseButtonStateChanged(MouseButton button, uint32_t x, uint32_t y, bool isdown) {
+		glm::mat4 inverse = glm::inverse(m_viewProjectionMatrix);
+		glm::vec2 mousePos = inverse * glm::vec4(Normalize(x, y), 0.0f, 1.0f);
 		if (m_currentTool)
-			m_currentTool->OnButtonStateChanged(button, isdown);
+			m_currentTool->OnButtonStateChanged(button, mousePos, isdown);
 	}
 
 	void Application::Update() {
@@ -95,7 +98,8 @@ namespace app {
 		Renderer2D::DrawBatch(m_scene.lineBatch);		
 		Renderer2D::End();
 
-		
+		if (m_currentTool->WantsToBeDrawn())
+			m_currentTool->Draw();
 	}
 
 	void Application::Run() {
@@ -125,6 +129,8 @@ namespace app {
 			UseTool(new Eraser);
 		else if (keycode == KEY_P)
 			UseTool(new Pencil);
+		else if (keycode == KEY_T)
+			UseTool(new TransformTool);
 		else if (keycode == KEY_I) {
 			// load image and add it to scene
 			std::optional<std::string> filepath = os::ShowOpenDialog(NULL);

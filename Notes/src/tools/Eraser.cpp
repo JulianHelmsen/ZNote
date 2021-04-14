@@ -124,15 +124,5 @@ namespace app {
 		}
 	}
 
-	void Eraser::OnButtonStateChanged(MouseButton button, bool down) {
 
-	}
-
-	void Eraser::OnKeyPress(uint32_t keycode) {
-
-	}
-
-	void Eraser::OnScroll(int dir) {
-
-	}
 }

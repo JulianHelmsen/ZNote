@@ -162,7 +162,7 @@ namespace app {
 		imageVertex.uv.x = 1.0f;
 		mesh.Vertex(imageVertex);
 
-		imageVertex.position.y += size.x;
+		imageVertex.position.y += size.y;
 		imageVertex.uv.y = 1.0f;
 		mesh.Vertex(imageVertex);
 

@@ -8,9 +8,6 @@ namespace app {
 	public:
 		Eraser() : m_size(0.02f) {}
 		void OnDrag(const glm::vec2& prev, const glm::vec2& newpos, int button) override;
-		void OnButtonStateChanged(MouseButton button, bool down) override;
-		void OnKeyPress(uint32_t keycode) override;
-		void OnScroll(int dir) override;
 		
 
 	private:
@@ -19,5 +16,6 @@ namespace app {
 		static bool CalculateIntersection(const glm::vec2& pos1, const glm::vec2& dir1, const glm::vec2& pos2, const glm::vec2 dir2, float* t, float* r);
 		float m_size;
 	};
+
 
 }

@@ -7,9 +7,8 @@ namespace app {
 	public:
 		Pencil();
 		void OnDrag(const glm::vec2& prev, const glm::vec2& newpos, int button) override;
-		void OnButtonStateChanged(MouseButton button, bool down) override;
+		void OnButtonStateChanged(MouseButton button, const glm::vec2& pos, bool down) override;
 		void OnKeyPress(uint32_t keycode) override;
-		void OnScroll(int dir) override;
 
 		inline Color GetColor() const { return colorPallete[colorPalleteIdx]; }
 	private:

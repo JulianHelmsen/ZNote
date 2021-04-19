@@ -9,6 +9,11 @@ enum class MouseButton : uint32_t {
 
 #define KEY_MOD_CONTROL (0x0002)
 
+#define KEY_ESCAPE (256)
+#define KEY_BACKSPACE (259)
+#define KEY_DELETE (261)
+
+
 #define KEY_SPACE              32
 #define KEY_APOSTROPHE         39 
 #define KEY_COMMA              44 

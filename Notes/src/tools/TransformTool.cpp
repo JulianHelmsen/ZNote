@@ -70,6 +70,37 @@ namespace app {
 
 	}
 
+	void TransformTool::OnKeyPress(uint32_t keycode) {
+
+		switch (keycode) {
+		case KEY_DELETE: {
+			// delet
+			if (m_targetType == TargetType::IMAGE) {
+				Image* image = (Image*) m_target;
+				const uint32_t idx = (uint32_t) (image - m_context->images.data());
+				m_context->images.erase(m_context->images.begin() + idx);
+			}
+
+			m_target = NULL;
+			m_selectedAxis = 0;
+			OnTargetSelected(TargetType::IMAGE, NULL);
+			break;
+		}
+		case KEY_S: {
+			// scale
+			m_selectedAxis = 0;
+			s_transformationType = TransformationType::SCALE;
+			break;
+		}
+		case KEY_M: {
+			// move
+			m_selectedAxis = 0;
+			s_transformationType = TransformationType::TRANSLATION;
+			break;
+		}
+		}
+	}
+
 	uint32_t TransformTool::GetAxis(const glm::vec2& pos) {
 		glm::vec2 guizmoPos = GetGuizmoPosition();
 		glm::vec2 relativePos = pos - guizmoPos;

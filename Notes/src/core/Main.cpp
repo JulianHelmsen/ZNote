@@ -2,7 +2,7 @@
 #include "os/Utils.h"
 
 int main(const int argc, const char** argv) {
-	RELEASE_CLOSE_CONSOLE();
+	RELEASE_HIDE_CONSOLE();
 	app::Application app;
 	app.Run();
 	app.OnClose();

@@ -4,9 +4,9 @@
 #include <string>
 
 #ifdef NDEBUG
-	#define RELEASE_CLOSE_CONSOLE() os::HideConsoleWindow()
+	#define RELEASE_HIDE_CONSOLE() os::HideConsoleWindow()
 #else
-	#define RELEASE_CLOSE_CONSOLE()
+	#define RELEASE_HIDE_CONSOLE()
 #endif
 
 namespace os {

@@ -1,4 +1,4 @@
-workspace "Notes"
+workspace "ZNote"
 	architecture ("x86_64")
 	systemversion "latest"
 	configurations {"DEBUG", "RELEASE"}
@@ -6,22 +6,22 @@ workspace "Notes"
 
 
 
-project "Notes"
+project "ZNote"
 	kind "ConsoleApp"
-	location "Notes"
+	location "ZNote"
 	cppdialect "C++17"
 	language "C++"
 	targetdir "bin/%{cfg.buildcfg}"
 
 	files {
-		"Notes/src/**.cpp",
-		"Notes/src/**.h"
+		"ZNote/src/**.cpp",
+		"ZNote/src/**.h"
 	}
 
 	includedirs {
 		"external libraries/glm",
 		"external libraries/stb",
-		"Notes/src",
+		"ZNote/src",
 		"external libraries/GLFW/include",
 		"external libraries/GLEW/include"
 	}
@@ -40,7 +40,7 @@ project "Notes"
 	defines {"GLEW_STATIC"}
 
 	filter "platforms:WINDOWS"
-		files {"Notes/platform/windows/**.cpp"}
+		files {"ZNote/platform/windows/**.cpp"}
 		defines {"WINDOWS"}
 
 	filter "configurations:DEBUG"

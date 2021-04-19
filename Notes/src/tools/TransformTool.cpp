@@ -8,7 +8,7 @@
 #define AXIS_Y_BIT (2)
 
 namespace app {
-
+	TransformTool::TransformationType TransformTool::s_transformationType = TransformationType::TRANSLATION;
 	static glm::vec2 s_defaultArrowSize = glm::vec2(0.2f, 0.2f);
 
 	void TransformTool::OnDrag(const glm::vec2& prev, const glm::vec2& newpos, int button) {
@@ -19,7 +19,7 @@ namespace app {
 		glm::vec2 mousepos = WorldToGuizmoSpace(newpos);
 		glm::vec2 relativePos = mousepos - GetGuizmoPosition();
 
-		if (m_transformationType == TransformationType::SCALE) {
+		if (s_transformationType == TransformationType::SCALE) {
 			glm::vec2 scaleValues = glm::vec2(1.0f);
 			if (m_selectedAxis & AXIS_X_BIT && relativePos.x > 0.0f) {
 				scaleValues.x = relativePos.x / m_arrowSize.x;
@@ -31,12 +31,12 @@ namespace app {
 			scaleValues = glm::max(scaleValues, glm::vec2(0.8f, 0.8f));
 
 			m_arrowSize *= scaleValues;
-			TransformTarget(m_transformationType, scaleValues);
-		}else if (m_transformationType == TransformationType::TRANSLATION) {
+			TransformTarget(s_transformationType, scaleValues);
+		}else if (s_transformationType == TransformationType::TRANSLATION) {
 			glm::vec2 dir = mousepos - WorldToGuizmoSpace(prev);
 			dir.x *= m_selectedAxis & AXIS_X_BIT;
 			dir.y *= (m_selectedAxis & AXIS_Y_BIT) >> 1;
-			TransformTarget(m_transformationType, dir);
+			TransformTarget(s_transformationType, dir);
 		}
 
 	}
@@ -98,14 +98,19 @@ namespace app {
 
 
 	void TransformTool::OnButtonStateChanged(MouseButton button, const glm::vec2& mouseWorldPos, bool down) {
+		if (button == MouseButton::Right)
+			return;
+
 		if (button == MouseButton::WHEEL && down) {
 			// change transformation mode
-			if (m_transformationType == TransformationType::SCALE)
-				m_transformationType = TransformationType::TRANSLATION;
+			if (s_transformationType == TransformationType::SCALE)
+				s_transformationType = TransformationType::TRANSLATION;
 			else
-				m_transformationType = TransformationType::SCALE;
+				s_transformationType = TransformationType::SCALE;
 			return;
 		}
+
+		
 
 		if (HasGuizmo() && down) {
 			// check if axis was clicked (used)

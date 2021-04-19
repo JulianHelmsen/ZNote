@@ -19,7 +19,8 @@ namespace app {
 		enum class TransformationType {SCALE, TRANSLATION};
 		void* m_target = NULL;
 		TargetType m_targetType;
-		TransformationType m_transformationType = TransformationType::TRANSLATION;
+
+		static TransformationType s_transformationType;
 
 		glm::vec2 m_arrowSize;
 		uint32_t m_selectedAxis;

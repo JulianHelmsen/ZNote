@@ -41,7 +41,7 @@ namespace app {
 
 	}
 
-	void TransformTool::TransformTarget(TransformationType type, glm::vec2 values) {
+	void TransformTool::TransformTarget(TransformationType type, const glm::vec2& values) {
 		glm::vec2* pos = NULL;
 		glm::vec2* scale = NULL;
 

@@ -26,7 +26,7 @@ namespace app {
 		uint32_t m_selectedAxis;
 
 
-		void TransformTarget(TransformationType type, glm::vec2 values);
+		void TransformTarget(TransformationType type, const glm::vec2& values);
 
 		bool SelectTarget(const glm::vec2& worldPosition);
 		bool HasGuizmo() const;

@@ -14,6 +14,7 @@
 
 namespace app {
 
+	Application* Application::s_app = NULL;
 
 	glm::vec2 Normalize(uint32_t x, uint32_t y) {
 		glm::vec2 pos;
@@ -24,7 +25,9 @@ namespace app {
 	}
 
 
+	
 	Application::Application() {
+		s_app = this;
 		Window::SetDragCallback(std::bind(&Application::OnMouseDragged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
 		Window::SetResizeCallback(std::bind(&Application::OnResize, this));
 		Window::SetScrollWheelCallback(std::bind(&Application::OnScroll, this, std::placeholders::_1));

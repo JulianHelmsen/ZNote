@@ -21,7 +21,12 @@ namespace app {
 		void OnClose();
 		
 
+		static const glm::mat4& GetViewMatrix() { return s_app->m_scene.viewMatrix; }
+		static const glm::mat4& GetProjectionMatrix() { return s_app->m_projectionMatrix; }
+		static const glm::mat4& GetViewProjectionMatrix() { return s_app->m_viewProjectionMatrix; }
+		static Application* GetApp() { return s_app; }
 	private:
+		static Application* s_app;
 		// Rendering buffers
 		uint32_t m_vao;
 		uint32_t m_vbo;

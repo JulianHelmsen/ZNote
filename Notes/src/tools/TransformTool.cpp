@@ -27,8 +27,8 @@ namespace app {
 			if (m_selectedAxis & AXIS_Y_BIT && relativePos.y > 0.0f) {
 				scaleValues.y = relativePos.y / m_arrowSize.y;
 			}
-			scaleValues = glm::min(scaleValues, glm::vec2(100.0f, 100.0f));
-			scaleValues = glm::max(scaleValues, glm::vec2(0.8f, 0.8f));
+			scaleValues = glm::min(scaleValues, glm::vec2(100.0f));
+			scaleValues = glm::max(scaleValues, glm::vec2(0.8f));
 
 			m_arrowSize *= scaleValues;
 			TransformTarget(s_transformationType, scaleValues);

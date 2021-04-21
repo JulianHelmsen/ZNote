@@ -36,6 +36,7 @@ namespace app {
 			glm::vec2 dir = mousepos - WorldToGuizmoSpace(prev);
 			dir.x *= m_selectedAxis & AXIS_X_BIT;
 			dir.y *= (m_selectedAxis & AXIS_Y_BIT) >> 1;
+			dir = GuizmoToWorldSpace(dir);
 			TransformTarget(s_transformationType, dir);
 		}
 

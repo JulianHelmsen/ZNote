@@ -50,6 +50,9 @@ project "ZNote"
 	
 	filter "configurations:RELEASE"
 		defines {"RELEASE", "NDEBUG"}
-		optimize "On"
+		optimize "Speed"
 		runtime "Release"
+		floatingpoint "fast"
+		
+
 	

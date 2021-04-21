@@ -16,10 +16,12 @@ namespace app {
 			return; // user had not dragged an axis -> no update of transformation
 		ASSERT(m_target);
 
-		glm::vec2 mousepos = WorldToGuizmoSpace(newpos);
-		glm::vec2 relativePos = mousepos - GetGuizmoPosition();
+
 
 		if (s_transformationType == TransformationType::SCALE) {
+			const glm::vec2 mousepos = WorldToGuizmoSpace(newpos);
+			const glm::vec2 relativePos = mousepos - GetGuizmoPosition();
+
 			glm::vec2 scaleValues = glm::vec2(1.0f);
 			if (m_selectedAxis & AXIS_X_BIT && relativePos.x > 0.0f) {
 				scaleValues.x = relativePos.x / m_arrowSize.x;

@@ -33,10 +33,9 @@ namespace app {
 			m_arrowSize *= scaleValues;
 			TransformTarget(s_transformationType, scaleValues);
 		}else if (s_transformationType == TransformationType::TRANSLATION) {
-			glm::vec2 dir = mousepos - WorldToGuizmoSpace(prev);
+			glm::vec2 dir = newpos - prev;
 			dir.x *= m_selectedAxis & AXIS_X_BIT;
 			dir.y *= (m_selectedAxis & AXIS_Y_BIT) >> 1;
-			dir = GuizmoToWorldSpace(dir);
 			TransformTarget(s_transformationType, dir);
 		}
 

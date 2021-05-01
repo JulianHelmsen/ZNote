@@ -8,14 +8,14 @@ namespace app {
 
 	Pencil::Pencil() : m_newStroke(true) {
 		colorPallete[0] = PINK;
-		colorPallete[1] = WHITE;
+		colorPallete[1] = GREEN;
 		colorPallete[2] = CORAL;
 		colorPallete[3] = YELLOW;
 		colorPallete[4] = TEAL;
 		colorPallete[5] = LIGHT_BLUE;
 		colorPallete[6] = BLUE;
 		colorPallete[7] = PURPLE;
-		colorPallete[8] = GREEN;
+		colorPallete[8] = WHITE;
 	}
 	
 

@@ -15,6 +15,7 @@ namespace app {
 		colorPallete[5] = LIGHT_BLUE;
 		colorPallete[6] = BLUE;
 		colorPallete[7] = PURPLE;
+		colorPallete[8] = GREEN;
 	}
 	
 
@@ -50,7 +51,7 @@ namespace app {
 	}
 
 	void Pencil::OnKeyPress(uint32_t keycode) {
-		if (keycode >= KEY_1 && keycode <= KEY_8)
+		if (keycode >= KEY_1 && keycode <= KEY_9)
 			colorPalleteIdx = keycode - KEY_1;
 	}
 

@@ -2,6 +2,7 @@
 #include "core/Logger.h"
 #include "core/Application.h"
 #include "renderer/Renderer2D.h"
+#include <cmath>
 
 #define AXIS_NONE (0)
 #define AXIS_X_BIT (1)
@@ -163,7 +164,62 @@ namespace app {
 		m_arrowSize = s_defaultArrowSize;
 	}
 
+	void TransformTool::DrawEnd(renderer::Batch<Vertex>& batch, Color color, const glm::vec2& pos, bool rightDir) const {
+		constexpr float sizeFraction = 0.1f;
+		float size = (rightDir ? s_defaultArrowSize.x : s_defaultArrowSize.y) * sizeFraction;
 
+
+		Vertex vertex;
+		vertex.color = color;
+
+		switch (s_transformationType) {
+		case TransformationType::SCALE: {
+			// Draw circle around the given position
+			const int n = 10;
+
+			vertex.position = pos + glm::vec2(size, 0.0f);
+			batch.InsertVertex(vertex);
+
+			for (int i = 1; i <= n; i++) {
+				float angle = (float) i / n * 3.14159265358979f * 2.0f;
+				vertex.position = pos + size * glm::vec2(std::cos(angle), std::sin(angle));
+
+				batch.InsertVertex(vertex);
+				batch.InsertIndex(batch.GetNumVertices() - 1);
+				batch.InsertIndex(batch.GetNumVertices() - 2);
+			}
+
+			
+			break;
+		}
+		case TransformationType::TRANSLATION: {
+
+			
+			if (rightDir) {
+				vertex.position = pos + glm::vec2(-size * 0.5f, size);
+				batch.InsertVertex(vertex);
+				vertex.position = pos;
+				batch.InsertVertex(vertex);
+				vertex.position = pos + glm::vec2(-size * 0.5f, -size);
+				batch.InsertVertex(vertex);
+			}else { // up
+				vertex.position = pos + glm::vec2(-size, -size * 0.5f);
+				batch.InsertVertex(vertex);
+				vertex.position = pos;
+				batch.InsertVertex(vertex);
+				vertex.position = pos + glm::vec2(size, -size * 0.5f);
+				batch.InsertVertex(vertex);
+
+			}
+
+			batch.InsertIndex(batch.GetNumVertices() - 3);
+			batch.InsertIndex(batch.GetNumVertices() - 2);
+			batch.InsertIndex(batch.GetNumVertices() - 2);
+			batch.InsertIndex(batch.GetNumVertices() - 1);
+			break;
+		}
+		}
+	}
 
 
 	void TransformTool::Draw() const {
@@ -177,11 +233,14 @@ namespace app {
 		batch.InsertVertex(Vertex{ pos + glm::vec2(m_arrowSize.x, 0.0f), Color{255, 0, 0} });
 		batch.InsertVertex(Vertex{ pos, Color{0, 255, 0} });
 		batch.InsertVertex(Vertex{ pos + glm::vec2(0.0f, m_arrowSize.y), Color{0, 255, 0} });
-
+		
 		batch.InsertIndex(0);
 		batch.InsertIndex(1);
 		batch.InsertIndex(2);
 		batch.InsertIndex(3);
+
+		DrawEnd(batch, Color{ 255, 0, 0}, pos + glm::vec2(m_arrowSize.x, 0.0f), true);
+		DrawEnd(batch, Color{ 0, 255, 0 }, pos + glm::vec2(0.0f, m_arrowSize.y), false);
 
 		Renderer2D::Begin(Application::GetProjectionMatrix());
 		Renderer2D::DrawBatch(batch);

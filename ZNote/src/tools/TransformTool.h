@@ -2,6 +2,7 @@
 
 #include "Tool.h"
 #include <glm/glm.hpp>
+#include <renderer/Batch.h>
 
 namespace app {
 
@@ -35,6 +36,9 @@ namespace app {
 		glm::vec2 GetTargetPosition() const;
 		glm::vec2 WorldToGuizmoSpace(const glm::vec2& pos) const;
 		glm::vec2 GuizmoToWorldSpace(const glm::vec2& pos) const;
+
+
+		void DrawEnd(renderer::Batch<Vertex>& batch, Color color, const glm::vec2& pos, bool rightDir) const;
 
 
 		uint32_t GetAxis(const glm::vec2& guizmoSpacePos);

@@ -57,8 +57,10 @@ namespace renderer {
 		uint32_t GetNumIndices() const { return (uint32_t) indices.size(); }
 		uint32_t GetNumVertices() const { return (uint32_t) vertices.size(); }
 
-		std::vector<VertexType>& GetVertexList() const { return vertices; };
-		std::vector<uint32_t>& GetIndexList() const { return indices; };
+		const std::vector<VertexType>& GetVertexList() const { return vertices; };
+		const std::vector<uint32_t>& GetIndexList() const { return indices; };
+		std::vector<VertexType>& GetVertexList() { return vertices; };
+		std::vector<uint32_t>& GetIndexList() { return indices; };
 		void Clear() { vertices.clear(); indices.clear(); }
 		
 	private:

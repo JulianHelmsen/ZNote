@@ -76,7 +76,7 @@ namespace app {
 
 		switch (keycode) {
 		case KEY_DELETE: {
-			// delet
+			// delete
 			if (m_targetType == TargetType::IMAGE) {
 				Image* image = (Image*) m_target;
 				const uint32_t idx = (uint32_t) (image - m_context->images.data());

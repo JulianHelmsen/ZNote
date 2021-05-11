@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Scene.h"
-#include <stdio.h>
 
 namespace app {
 

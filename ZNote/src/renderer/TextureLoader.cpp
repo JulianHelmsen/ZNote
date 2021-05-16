@@ -32,5 +32,35 @@ namespace utils {
 		}
 		return texId;
 	}
+
+	uint32_t TextureLoader::LoadTexture(const unsigned char* imageData, uint32_t width, uint32_t height, uint32_t numChannels) {
+		uint32_t texId;
+
+		glGenTextures(1, &texId);
+		glBindTexture(GL_TEXTURE_2D, texId);
+
+	
+		GLenum dataFormat;
+		switch (numChannels) {
+		case 3:
+			dataFormat = GL_RGB;
+			break;
+		case 1:
+			dataFormat = GL_RED;
+			break;
+		case 4:
+			dataFormat = GL_RGBA;
+			break;
+		}
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, imageData);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		return texId;
+	}
 }
 

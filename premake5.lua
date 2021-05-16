@@ -40,8 +40,12 @@ project "ZNote"
 	defines {"GLEW_STATIC"}
 
 	filter "platforms:WINDOWS"
-		files {"ZNote/platform/windows/**.cpp"}
+		files {
+			"ZNote/platform/windows/**.cpp",
+			"ZNote/platform/windows/**.h"
+		}
 		defines {"WINDOWS"}
+
 
 	filter "configurations:DEBUG"
 		defines {"DEBUG"}

@@ -6,6 +6,7 @@
 #include "core/Window.h"
 #include "Scene.h"
 #include "tools/Tool.h"
+#include "os/Clipboard.h"
 
 namespace app {
 
@@ -42,6 +43,8 @@ namespace app {
 		void OnKeyPress(uint32_t keycode, uint32_t mods);
 		void OnScroll(int dir);
 		void UseTool(Tool* tool);
+		void ClipboardImagePasted(const os::ClipboardImage& image);
+		void AddImage(Image& image);
 		
 		
 		void Save();

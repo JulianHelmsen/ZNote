@@ -33,6 +33,7 @@ namespace app {
 		Window::SetScrollWheelCallback(std::bind(&Application::OnScroll, this, std::placeholders::_1));
 		Window::SetKeyCallback(std::bind(&Application::OnKeyPress, this, std::placeholders::_1, std::placeholders::_2));
 		Window::SetMouseButtonCallback(std::bind(&Application::OnMouseButtonStateChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+		os::Clipboard::SetDataCallback<os::ClipboardImage>(std::bind(&Application::ClipboardImagePasted, this, std::placeholders::_1));
 		Window::Create();
 		glewInit();
 		renderer::SetRenderDefaults();
@@ -45,6 +46,8 @@ namespace app {
 
 		
 	}
+
+
 
 	void Application::UseTool(Tool* tool) {
 		if (m_currentTool)
@@ -128,6 +131,9 @@ namespace app {
 			Save();
 		else if (mods & KEY_MOD_CONTROL && keycode == KEY_O)
 			Load();
+		else if (mods & KEY_MOD_CONTROL && keycode == KEY_V) {
+			os::Clipboard::Enumerate();
+		}
 		else if (keycode == KEY_E)
 			UseTool(new Eraser);
 		else if (keycode == KEY_P)
@@ -140,15 +146,9 @@ namespace app {
 			if (filepath) {
 				Image image;
 				image.textureId = utils::TextureLoader::LoadTexture(filepath->c_str(), &image.size);
-				float aspectRatio = image.size.x / image.size.y;
-				image.centerPos = -glm::vec2(m_scene.translationMatrix[3]);
-
-				float height = 0.5f / m_scene.scaleMatrix[0][0];
-				float width = aspectRatio * height;
-				image.size.x = width;
-				image.size.y = height;
 				image.filepath = *filepath;
-				m_scene.images.push_back(image);
+				AddImage(image);
+				
 			}
 		}
 		else if (m_currentTool)
@@ -156,6 +156,26 @@ namespace app {
 		
 		
 		
+	}
+
+	void Application::ClipboardImagePasted(const os::ClipboardImage& clipboardImage) {
+		Image image;
+		image.textureId = utils::TextureLoader::LoadTexture(clipboardImage.imageData, clipboardImage.width, clipboardImage.height, clipboardImage.numChannels);
+		image.filepath = std::string("none");
+		image.size.x = clipboardImage.width;
+		image.size.y = clipboardImage.height;
+		AddImage(image);
+	}
+
+	void Application::AddImage(Image& image) {
+		float aspectRatio = image.size.x / image.size.y;
+		image.centerPos = -glm::vec2(m_scene.translationMatrix[3]);
+
+		float height = 0.5f / m_scene.scaleMatrix[0][0];
+		float width = aspectRatio * height;
+		image.size.x = width;
+		image.size.y = height;
+		m_scene.images.push_back(image);
 	}
 
 	void Application::OnScroll(int dir) {

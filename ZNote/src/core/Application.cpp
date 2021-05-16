@@ -4,7 +4,7 @@
 #include "os/Utils.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include "Keycodes.h"
-#include "SceneSerializer.h"
+#include "serialization/SceneSerializer.h"
 #include "tools/Pencil.h"
 #include "tools/Eraser.h"
 #include "tools/TransformTool.h"
@@ -161,9 +161,9 @@ namespace app {
 	void Application::ClipboardImagePasted(const os::ClipboardImage& clipboardImage) {
 		Image image;
 		image.textureId = utils::TextureLoader::LoadTexture(clipboardImage.imageData, clipboardImage.width, clipboardImage.height, clipboardImage.numChannels);
-		image.filepath = std::string("none");
-		image.size.x = clipboardImage.width;
-		image.size.y = clipboardImage.height;
+		image.filepath = std::string("(none)");
+		image.size.x = (float) clipboardImage.width;
+		image.size.y = (float) clipboardImage.height;
 		AddImage(image);
 	}
 

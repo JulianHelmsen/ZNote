@@ -3,45 +3,65 @@
 #include <stdio.h>
 #include "renderer/TextureLoader.h"
 
+
 namespace app {
 
-	void SceneSerializer::Serialize(const char* filepath, const Scene& scene) {
-		FILE* file;
-		fopen_s(&file, filepath, "wb");
+	template<typename T>
+	void Write(std::vector<uint8_t>& buffer, const T* data, size_t count) {
+		size_t bytes = sizeof(T) * count;
+		uint8_t* values = (uint8_t*) data;
+		for (size_t i = 0; i < bytes; i++)
+			buffer.push_back(values[i]);
+	}
 
+	template<typename T>
+	static void Serialize(std::vector<uint8_t>& writeBuffer, uint32_t blockId, const T& data) {
+		Write(writeBuffer, &blockId, 1);
+
+	}
+
+	void SceneSerializer::Serialize(const char* filepath, const Scene& scene) {
 		const std::vector<Vertex>& lineVertices = scene.lineBatch.GetVertexList();
 		const std::vector<uint32_t>& lineIndices = scene.lineBatch.GetIndexList();
 
+		std::vector<uint8_t> writeBuffer;
+		
 		// write number of vertex buffer
 		uint32_t sizeHeader = (uint32_t) lineVertices.size();
-		fwrite(&sizeHeader, sizeof(sizeHeader), 1, file);
+		Write(writeBuffer, &sizeHeader, 1);
 		// write vertex buffer data
-		fwrite(lineVertices.data(), sizeof(Vertex), lineVertices.size(), file);
+		Write(writeBuffer, lineVertices.data(), lineVertices.size());
 		// write number of index buffer
 		sizeHeader = (uint32_t)lineIndices.size();
-		fwrite(&sizeHeader, sizeof(sizeHeader), 1, file);
+		Write(writeBuffer, &sizeHeader, 1);
 		// write index buffer data
-		fwrite(lineIndices.data(), sizeof(uint32_t), lineIndices.size(), file);
+		Write(writeBuffer, lineIndices.data(), lineIndices.size());
 		// write scale matrix
-		fwrite(glm::value_ptr(scene.scaleMatrix), sizeof(glm::mat4), 1, file);
+		Write(writeBuffer, glm::value_ptr(scene.scaleMatrix), 16);
 		// write translation matrix
-		fwrite(glm::value_ptr(scene.translationMatrix), sizeof(glm::mat4), 1, file);
+		Write(writeBuffer, glm::value_ptr(scene.translationMatrix), 16);
 
 		// serialize images
 		uint32_t numImages = (uint32_t) scene.images.size();
-		fwrite(&numImages, sizeof(numImages), 1, file);
+		Write(writeBuffer, &numImages, 1);
 
 		for (const Image& image : scene.images) {
 			// write filepath
-			uint32_t filepathLen = (uint32_t) image.filepath.size();
-			fwrite(&filepathLen, sizeof(filepathLen), 1, file);
-			fwrite(image.filepath.c_str(), sizeof(char), filepathLen, file);
-			fwrite(&image.centerPos, sizeof(glm::vec2), 1, file);
-			fwrite(&image.size, sizeof(glm::vec2), 1, file);
+			if (image.filepath == "(none)") {
+				// TODO: save image as reference
+				
+			}else {
+				uint32_t filepathLen = (uint32_t)image.filepath.size();
+				Write(writeBuffer, &filepathLen, 1);
+				Write(writeBuffer, image.filepath.c_str(), filepathLen);
+				Write(writeBuffer, &image.centerPos, 1);
+				Write(writeBuffer, &image.size, 1);
+			}
 		}
 
-
-
+		FILE* file;
+		fopen_s(&file, filepath, "wb");
+		fwrite(writeBuffer.data(), writeBuffer.size(), 1, file);
 		fclose(file);
 		printf("Saved to file \"%s\"\n", filepath);
 	}
@@ -59,6 +79,7 @@ namespace app {
 			printf("Can not read from file \"%s\"\n", filepath);
 			return;
 		}
+
 			
 		Scene::CleanUp(*scene);
 

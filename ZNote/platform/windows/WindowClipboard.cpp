@@ -22,11 +22,14 @@ namespace os {
 		BITMAP bitmap = { 0 };
 
 		HDC dc = CreateCompatibleDC(NULL);
-		if(dc == NULL)
+		if(dc == NULL) {
 			LOG("CreateCompatibleDC: %s\n", ToErrorString(GetLastError()).c_str());
+		}
 
 		SelectObject(dc, handle);
-		GetObject(handle, sizeof(bitmap), &bitmap);
+		if (!GetObject(handle, sizeof(bitmap), &bitmap)) {
+			LOG("Get Object failed in function %s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
+		}
 
 
 		BITMAPINFOHEADER& header = info.bmiHeader;
@@ -69,10 +72,7 @@ namespace os {
 
 	void Clipboard::Enumerate() {
 		HWND hwnd = glfwGetWin32Window((GLFWwindow*)Window::GetNativeHandle());
-		BOOL openSuccess = OpenClipboard(hwnd);
-
-		if(!openSuccess)
-			LOG("open clipboard failed: %s\n", ToErrorString(GetLastError()).c_str());
+		WIN32_CALL(OpenClipboard(hwnd));
 
 		UINT format = 0;
 		do{
@@ -85,18 +85,10 @@ namespace os {
 			}
 
 		} while (format != 0);
-
-		UINT error = GetLastError();
-		if (error != ERROR_SUCCESS) {
-			LOG("EnumClipboardFormats: %s\n", ToErrorString(error).c_str());
-		}
-
-		BOOL closeSuccess = CloseClipboard();
-		if (!closeSuccess)
-			LOG("close clipboard failed: %s\n", ToErrorString(GetLastError()).c_str());
 		
-		
+		WIN32_CALL(GetLastError());
 
+		WIN32_CALL(CloseClipboard());
 	}
 
 	template<>

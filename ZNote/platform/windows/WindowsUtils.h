@@ -3,6 +3,12 @@
 #include <Windows.h>
 #include <string>
 
+#ifdef DEBUG
+	#define WIN32_CALL(x) {UINT res = x; if(!res) LOG("win32 api error [%s]: %s\n", #x, ToErrorString(GetLastError()).c_str()); }
+#else
+	#define WIN32_CALL(x) x
+#endif
+
 namespace os {
 
 

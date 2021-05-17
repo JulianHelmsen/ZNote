@@ -19,7 +19,8 @@ namespace app {
 		SCALE_MATRIX = 2,
 		TRANSLATION_MATRIX = 3,
 		IMAGE_EXTERNAL = 4,
-		IMAGE_INCLUDED = 5
+		IMAGE_INCLUDED = 5,
+		STROKE_LENGTH = 6
 	};
 
 	static std::string ToErrorString(uint32_t errorcode) {
@@ -77,6 +78,30 @@ namespace app {
 		Write(writeBuffer, &image.centerPos, 1);
 		Write(writeBuffer, &image.size, 1);
 	}
+	
+	static void SerializeStrokeLengths(std::vector<uint8_t>& writeBuffer, SerializationTypes type, const std::vector<uint32_t>& indices) {
+		uint32_t currentLen = 0;
+		std::vector<uint32_t> lengths;
+		lengths.reserve(500);
+
+		for (uint32_t i = 1; i < indices.size() - 1; i += 2) {
+			if (indices[i] == indices[i + 1]) {
+				currentLen++;
+			}else {
+				lengths.push_back(currentLen + 1);
+				currentLen = 0;
+			}
+		}
+		lengths.push_back(currentLen + 1);
+		uint32_t numStrokes = (uint32_t) lengths.size();
+
+		Write(writeBuffer, &type, 1);
+		Write(writeBuffer, &numStrokes, 1);
+		for (uint32_t val : lengths) {
+			Write(writeBuffer, &val, 1);
+		}
+			
+	}
 
 	void SceneSerializer::Serialize(const char* filepath, const Scene& scene) {
 		const std::vector<Vertex>& lineVertices = scene.lineBatch.GetVertexList();
@@ -85,10 +110,12 @@ namespace app {
 		std::vector<uint8_t> writeBuffer;
 		
 		SerializeVertexBuffer(writeBuffer, SerializationTypes::VERTEX_BUFFER, lineVertices);
-		SerializeIndexBuffer(writeBuffer, SerializationTypes::INDEX_BUFFER, lineIndices);
+		SerializeStrokeLengths(writeBuffer, SerializationTypes::STROKE_LENGTH, lineIndices);
+
+
 		// write scale matrix
 		SerializeMatrix(writeBuffer, SerializationTypes::SCALE_MATRIX, scene.scaleMatrix);
-		SerializeMatrix(writeBuffer, SerializationTypes::SCALE_MATRIX, scene.translationMatrix);
+		SerializeMatrix(writeBuffer, SerializationTypes::TRANSLATION_MATRIX, scene.translationMatrix);
 
 		
 		for (const Image& image : scene.images) {
@@ -165,6 +192,34 @@ namespace app {
 		return ERROR_SUCCESS;
 	}
 
+	static uint32_t ReadStrokeLengths(Scene& scene, uint8_t** position, uint8_t* end) {
+		if (*position + sizeof(uint32_t) > end)
+			return ERROR_NOT_ENOUGH_MEMORY;
+
+		uint32_t numStrokes = Read<uint32_t>(position);
+		
+		if (*position + sizeof(uint32_t) * numStrokes > end)
+			return ERROR_NOT_ENOUGH_MEMORY;
+		
+		uint32_t* strokeList = (uint32_t*) *position;
+		*position += sizeof(uint32_t) * numStrokes; // skip
+
+		std::vector<uint32_t>& indices = scene.lineBatch.GetIndexList();
+		indices.clear();
+		uint32_t idx = 0;
+		for (uint32_t i = 0; i < numStrokes; i++) {
+			for (uint32_t j = 0; j < strokeList[i]; j++) {
+				indices.push_back(idx);
+				indices.push_back(idx + 1);
+				idx++;
+			}
+			idx++;
+		}
+
+
+		return ERROR_SUCCESS;
+	}
+
 	static uint32_t DeserializeComponent(Scene& scene, uint8_t** position, uint8_t* end) {
 		SerializationTypes type = Read<SerializationTypes>(position);
 		switch (type) {
@@ -178,6 +233,8 @@ namespace app {
 			return ReadMatrix(scene.translationMatrix, position, end);
 		case SerializationTypes::IMAGE_EXTERNAL:
 			return ReadExternalImage(scene, position, end);
+		case SerializationTypes::STROKE_LENGTH:
+			return ReadStrokeLengths(scene, position, end);
 		}
 		return ERROR_UNSUPPORTED_TYPE;
 	}

@@ -30,6 +30,18 @@ namespace app {
 	}
 
 	template<typename T>
+	T& Read(uint8_t** position) {
+		T* arr = (T*)*position;
+		*position += sizeof(T);
+		return *arr;
+	}
+
+	static void Copy(void* dest, uint8_t** data, uint32_t bytes) {
+		memcpy(dest, *data, bytes);
+		*data += bytes;
+	}
+
+	template<typename T>
 	void Write(std::vector<uint8_t>& buffer, const T* data, size_t count) {
 		size_t bytes = sizeof(T) * count;
 		uint8_t* values = (uint8_t*) data;
@@ -97,17 +109,7 @@ namespace app {
 		printf("Saved to file \"%s\"\n", filepath);
 	}
 
-	template<typename T> 
-	T& Read(uint8_t** position) {
-		T* arr = (T*)*position;
-		*position += sizeof(T);
-		return *arr;
-	}
-
-	static void Copy(void* dest, uint8_t** data, uint32_t bytes) {
-		memcpy(dest, *data, bytes);
-		*data += bytes;
-	}
+	
 
 	static uint32_t ReadVertexBuffer(std::vector<Vertex>& lineVertices, uint8_t** position, uint8_t* end) {
 		if (*position + sizeof(uint32_t) > end)

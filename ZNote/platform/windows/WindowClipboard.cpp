@@ -46,6 +46,18 @@ namespace os {
 		}
 		DeleteDC(dc);
 
+
+		// Swizzle color components
+		// This is done in a bad way. Refactor later
+		uint32_t imageSize = bitmap.bmWidth * bitmap.bmHeight;
+		uint32_t offset = 0;
+		for (uint32_t i = 0; i < imageSize; i++) {
+			unsigned char tmp = imageData[offset + 0];
+			imageData[offset + 0] = imageData[offset + 2];
+			imageData[offset + 2] = tmp;
+			offset += 4;
+		}
+
 		ClipboardImage image;
 		image.imageData = imageData;
 		image.numChannels = 4;

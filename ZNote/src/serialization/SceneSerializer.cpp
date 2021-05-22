@@ -287,7 +287,6 @@ namespace app {
 
 
 		
-		// TODO: uncompress
 
 
 		uint8_t* position = fileContent;

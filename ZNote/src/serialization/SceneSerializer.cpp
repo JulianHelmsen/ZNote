@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "core/Logger.h"
 #include "renderer/TextureLoader.h"
+#include "Compression.h"
 #include <cstddef>
 
 
@@ -15,7 +16,7 @@
 namespace app {
 
 	struct SaveFileHeader {
-		bool compressed;
+		Compression::CompressionAlgorithm compressionAlgorithm;
 	};
 
 	enum class SerializationTypes : uint32_t {
@@ -108,6 +109,15 @@ namespace app {
 			
 	}
 
+	static void WriteHeader(FILE* file) {
+		uint32_t headerSize = sizeof(SaveFileHeader);
+		SaveFileHeader header;
+		header.compressionAlgorithm = Compression::CompressionAlgorithm::NONE;
+
+		fwrite(&headerSize, 1, sizeof(uint32_t), file);
+		fwrite(&header, 1, sizeof(SaveFileHeader), file);
+	}
+
 	void SceneSerializer::Serialize(const char* filepath, const Scene& scene) {
 		const std::vector<Vertex>& lineVertices = scene.lineBatch.GetVertexList();
 		const std::vector<uint32_t>& lineIndices = scene.lineBatch.GetIndexList();
@@ -136,12 +146,8 @@ namespace app {
 
 		FILE* file;
 		fopen_s(&file, filepath, "wb");
-		uint32_t headerSize =  sizeof(SaveFileHeader);
-		SaveFileHeader header;
-		header.compressed = false;
 
-		fwrite(&headerSize, 1, sizeof(uint32_t), file);
-		fwrite(&header, 1, sizeof(SaveFileHeader), file);
+		WriteHeader(file);
 
 		fwrite(writeBuffer.data(), writeBuffer.size(), 1, file);
 		fclose(file);
@@ -267,22 +273,38 @@ namespace app {
 
 		uint32_t fileSize;
 		uint8_t* fileContent;
+		uint8_t* fileContentBase;
 		fseek(file, 0, SEEK_END);
 		fileSize = (uint32_t) ftell(file);
 		rewind(file);
 		fileContent = new uint8_t[fileSize];
+		fileContentBase = fileContent;
 		fread_s(fileContent, fileSize, 1, fileSize, file);
 		fclose(file);
+
 		Scene::CleanUp(*scene);
 
 		// Parse uncompressed header
-
 		uint32_t headerSize = Read<uint32_t>(&fileContent);
+		if (headerSize > fileSize) {
+			LOG("file is corrupted!\n");
+			delete[] fileContent;
+			return;
+		}
+
 		SaveFileHeader* header = (SaveFileHeader*) fileContent;
 		fileContent += headerSize;
+		uint32_t contentSize = fileSize - sizeof(headerSize) - headerSize;
 		
-		if (offsetof(SaveFileHeader, compressed) < headerSize && header->compressed) {
+		if (offsetof(SaveFileHeader, compressionAlgorithm) < headerSize) {
 			// uncompress here
+			Compression decompression{ header->compressionAlgorithm };
+			bool decompressed = decompression.Compress(&fileContent, fileSize, &fileSize);
+			if (!decompressed) {
+				LOG("Failed to decompress\n");
+				delete[] fileContentBase;
+				return;
+			}
 		}
 
 
@@ -290,7 +312,7 @@ namespace app {
 
 
 		uint8_t* position = fileContent;
-		uint8_t* end = position + fileSize;
+		uint8_t* end = fileContentBase + fileSize;
 		while (position < end) {
 			uint32_t errorcode = DeserializeComponent(*scene, &position, end);
 			if (errorcode & ERROR_NOT_ENOUGH_MEMORY) {
@@ -303,6 +325,6 @@ namespace app {
 #endif
 		}
 			
-		delete[] fileContent;
+		delete[] fileContentBase;
 	}
 }

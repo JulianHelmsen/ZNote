@@ -44,6 +44,8 @@ namespace os {
 		
 		unsigned char* imageData = new unsigned char[bitmap.bmWidth * bitmap.bmHeight * 4];
 		int val = GetDIBits(dc, handle, 0, bitmap.bmHeight, imageData, &info, DIB_RGB_COLORS);
+
+
 		if (val == 0) {
 			LOG("Retrieving pixels failed\n");
 		}
@@ -86,7 +88,8 @@ namespace os {
 
 		} while (format != 0);
 		
-		WIN32_CALL(GetLastError());
+		DWORD a = GetLastError();
+		WIN32_CHECK_ERROR(GetLastError());
 
 		WIN32_CALL(CloseClipboard());
 	}

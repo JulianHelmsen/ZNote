@@ -5,8 +5,10 @@
 
 #ifdef DEBUG
 	#define WIN32_CALL(x) {UINT res = x; if(!res) LOG("win32 api error [%s]: %s\n", #x, ToErrorString(GetLastError()).c_str()); }
+	#define WIN32_CHECK_ERROR(errcode) {DWORD err = errcode;if(err) LOG("win32 api error in %s:%d\t->\t%s\n", __FILE__, __LINE__, ToErrorString(err).c_str()); }
 #else
 	#define WIN32_CALL(x) x
+	#define WIN32_CHECK_ERROR(errcode)
 #endif
 
 namespace os {

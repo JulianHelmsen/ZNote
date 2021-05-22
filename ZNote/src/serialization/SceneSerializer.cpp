@@ -304,6 +304,6 @@ namespace app {
 #endif
 		}
 			
-
+		delete[] fileContent;
 	}
 }

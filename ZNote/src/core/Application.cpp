@@ -10,7 +10,6 @@
 #include "tools/TransformTool.h"
 #include "renderer/Renderer2D.h"
 #include "renderer/TextureLoader.h"
-#include <stdio.h>
 
 namespace app {
 

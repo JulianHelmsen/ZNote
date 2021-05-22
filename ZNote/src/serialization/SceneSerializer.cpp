@@ -109,14 +109,6 @@ namespace app {
 			
 	}
 
-	static void WriteHeader(FILE* file) {
-		uint32_t headerSize = sizeof(SaveFileHeader);
-		SaveFileHeader header;
-		header.compressionAlgorithm = Compression::CompressionAlgorithm::NONE;
-
-		fwrite(&headerSize, 1, sizeof(uint32_t), file);
-		fwrite(&header, 1, sizeof(SaveFileHeader), file);
-	}
 
 	void SceneSerializer::Serialize(const char* filepath, const Scene& scene) {
 		const std::vector<Vertex>& lineVertices = scene.lineBatch.GetVertexList();
@@ -147,9 +139,19 @@ namespace app {
 		FILE* file;
 		fopen_s(&file, filepath, "wb");
 
-		WriteHeader(file);
 
+		// Create the file header
+		uint32_t headerSize = sizeof(SaveFileHeader);
+		SaveFileHeader header;
+		header.compressionAlgorithm = Compression::CompressionAlgorithm::NONE;
+
+		// write the file header
+		fwrite(&headerSize, 1, sizeof(uint32_t), file);
+		fwrite(&header, 1, sizeof(SaveFileHeader), file);
+
+		// write the files content
 		fwrite(writeBuffer.data(), writeBuffer.size(), 1, file);
+
 		fclose(file);
 		printf("Saved to file \"%s\"\n", filepath);
 	}
@@ -299,12 +301,8 @@ namespace app {
 		if (offsetof(SaveFileHeader, compressionAlgorithm) < headerSize) {
 			// uncompress here
 			Compression decompression{ header->compressionAlgorithm };
-			bool decompressed = decompression.Compress(&fileContent, fileSize, &fileSize);
-			if (!decompressed) {
-				LOG("Failed to decompress\n");
-				delete[] fileContentBase;
-				return;
-			}
+			
+			
 		}
 
 

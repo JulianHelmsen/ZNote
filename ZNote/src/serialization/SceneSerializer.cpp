@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "core/Logger.h"
 #include "renderer/TextureLoader.h"
+#include <cstddef>
 
 
 #define ERROR_CRITICAL (1 << 30)
@@ -12,6 +13,10 @@
 
 
 namespace app {
+
+	struct SaveFileHeader {
+		bool compressed;
+	};
 
 	enum class SerializationTypes : uint32_t {
 		VERTEX_BUFFER = 0,
@@ -131,6 +136,13 @@ namespace app {
 
 		FILE* file;
 		fopen_s(&file, filepath, "wb");
+		uint32_t headerSize =  sizeof(SaveFileHeader);
+		SaveFileHeader header;
+		header.compressed = false;
+
+		fwrite(&headerSize, 1, sizeof(uint32_t), file);
+		fwrite(&header, 1, sizeof(SaveFileHeader), file);
+
 		fwrite(writeBuffer.data(), writeBuffer.size(), 1, file);
 		fclose(file);
 		printf("Saved to file \"%s\"\n", filepath);
@@ -263,6 +275,18 @@ namespace app {
 		fclose(file);
 		Scene::CleanUp(*scene);
 
+		// Parse uncompressed header
+
+		uint32_t headerSize = Read<uint32_t>(&fileContent);
+		SaveFileHeader* header = (SaveFileHeader*) fileContent;
+		fileContent += headerSize;
+		
+		if (offsetof(SaveFileHeader, compressed) < headerSize && header->compressed) {
+			// uncompress here
+		}
+
+
+		
 		// TODO: uncompress
 
 

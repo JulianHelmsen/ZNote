@@ -7,6 +7,7 @@
 #include "Scene.h"
 #include "tools/Tool.h"
 #include "os/Clipboard.h"
+#include "Event.h"
 
 namespace app {
 

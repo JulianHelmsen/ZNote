@@ -27,12 +27,9 @@ namespace app {
 	
 	Application::Application() {
 		s_app = this;
-		Window::SetDragCallback(std::bind(&Application::OnMouseDragged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
-		Window::SetResizeCallback(std::bind(&Application::OnResize, this));
-		Window::SetScrollWheelCallback(std::bind(&Application::OnScroll, this, std::placeholders::_1));
-		Window::SetKeyCallback(std::bind(&Application::OnKeyPress, this, std::placeholders::_1, std::placeholders::_2));
-		Window::SetMouseButtonCallback(std::bind(&Application::OnMouseButtonStateChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+		Window::SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 		os::Clipboard::SetDataCallback<os::ClipboardImage>(std::bind(&Application::ClipboardImagePasted, this, std::placeholders::_1));
+
 		Window::Create();
 		glewInit();
 		renderer::SetRenderDefaults();
@@ -57,31 +54,63 @@ namespace app {
 	}
 
 
-	void Application::OnResize() {
-		uint32_t width = Window::GetWidth();
-		uint32_t height = Window::GetHeight();
-		glViewport(0, 0, width, height);
-		const float aspectRatio = (float) width / height;
+	void Application::OnEvent(app::Event& event) {
+		if (event.IsOfType<MousePressed>() ||event.IsOfType<MouseReleased>()) {
+			OnMouseButtonStateChanged(event);
+		}else if (event.IsOfType<MouseDragged>()) {
+			OnMouseDragged(event.Get<MouseDragged>());
+		}else if (event.IsOfType<WindowResized>()) {
+			OnResize(event.Get<WindowResized>());
+		}else if (event.IsOfType<MouseScrolled>()) {
+			OnScroll(event.Get<MouseScrolled>());
+		}else if (event.IsOfType<KeyPressed>()) {
+			OnKeyPress(event.Get<KeyPressed>());
+
+		}
+	}
+
+
+	void Application::OnResize(const WindowResized& resized) {
+		glViewport(0, 0, resized.newWidth, resized.newHeight);
+		const float aspectRatio = (float)resized.newWidth / resized.newHeight;
 		constexpr float normalizedHalfHeight = 1.0f;
 		const float normalizedHalfWidth = aspectRatio * normalizedHalfHeight;
 		m_projectionMatrix = glm::ortho(-normalizedHalfWidth, normalizedHalfWidth, -normalizedHalfHeight, normalizedHalfHeight);
 	}
 
 
-	void Application::OnMouseDragged(uint32_t oldX, uint32_t oldY, uint32_t x, uint32_t y, int button) {
+	void Application::OnMouseDragged(MouseDragged& event) {
 		glm::mat4 inverse = glm::inverse(m_viewProjectionMatrix);
-		glm::vec2 normalizedOld = inverse * glm::vec4(Normalize(oldX, oldY), 0.0f, 1.0f);
-		glm::vec2 normalized = inverse * glm::vec4(Normalize(x, y), 0.0f, 1.0f);
+		glm::vec2 normalizedOld = inverse * glm::vec4(Normalize(event.startX, event.startY), 0.0f, 1.0f);
+		glm::vec2 normalized = inverse * glm::vec4(Normalize(event.endX, event.endY), 0.0f, 1.0f);
 
-		if (button == 1) {
+		if (event.button == MouseButton::RIGHT) {
 			m_scene.translationMatrix[3][0] -= normalizedOld.x - normalized.x;
 			m_scene.translationMatrix[3][1] -= normalizedOld.y - normalized.y;
-		}else if (m_currentTool && button == 0) {
-			m_currentTool->OnDrag(normalizedOld, normalized, button);
+		}else if (m_currentTool && event.button == MouseButton::LEFT) {
+			m_currentTool->OnDrag(event.button, normalizedOld, normalized);
 		}			
 	}
 
-	void Application::OnMouseButtonStateChanged(MouseButton button, uint32_t x, uint32_t y, bool isdown) {
+	void Application::OnMouseButtonStateChanged(Event& event) {
+		uint32_t x;
+		uint32_t y;
+		MouseButton button;
+		bool isdown;
+
+		if (event.IsOfType<MousePressed>()) {
+			isdown = true;
+			MousePressed& e = event.Get<MousePressed>();
+			x = e.mouseX;
+			y = e.mouseY;
+			button = e.button;
+		}else {
+			isdown = false;
+			MouseReleased& e = event.Get<MouseReleased>();
+			x = e.mouseX;
+			y = e.mouseY;
+			button = e.button;
+		}
 		glm::mat4 inverse = glm::inverse(m_viewProjectionMatrix);
 		glm::vec2 mousePos = inverse * glm::vec4(Normalize(x, y), 0.0f, 1.0f);
 		if (m_currentTool)
@@ -125,21 +154,21 @@ namespace app {
 	}
 
 
-	void Application::OnKeyPress(uint32_t keycode, uint32_t mods) {
-		if (mods & KEY_MOD_CONTROL && keycode == KEY_S)
+	void Application::OnKeyPress(const KeyPressed& event) {
+		if (event.mods & KEY_MOD_CONTROL && event.keycode == KEY_S)
 			Save();
-		else if (mods & KEY_MOD_CONTROL && keycode == KEY_O)
+		else if (event.mods & KEY_MOD_CONTROL && event.keycode == KEY_O)
 			Load();
-		else if (mods & KEY_MOD_CONTROL && keycode == KEY_V) {
+		else if (event.mods & KEY_MOD_CONTROL && event.keycode == KEY_V) {
 			os::Clipboard::Enumerate();
 		}
-		else if (keycode == KEY_E)
+		else if (event.keycode == KEY_E)
 			UseTool(new Eraser);
-		else if (keycode == KEY_P)
+		else if (event.keycode == KEY_P)
 			UseTool(new Pencil);
-		else if (keycode == KEY_T)
+		else if (event.keycode == KEY_T)
 			UseTool(new TransformTool);
-		else if (keycode == KEY_I) {
+		else if (event.keycode == KEY_I) {
 			// load image and add it to scene
 			std::optional<std::string> filepath = os::ShowOpenDialog(NULL);
 			if (filepath) {
@@ -151,7 +180,7 @@ namespace app {
 			}
 		}
 		else if (m_currentTool)
-			m_currentTool->OnKeyPress(keycode);
+			m_currentTool->OnKeyPress(event.keycode);
 		
 		
 		
@@ -177,8 +206,8 @@ namespace app {
 		m_scene.images.push_back(image);
 	}
 
-	void Application::OnScroll(int dir) {
-		if (dir > 0)
+	void Application::OnScroll(const MouseScrolled& event) {
+		if (event.direction > 0)
 			m_scene.scaleMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(1.1f));
 		else
 			m_scene.scaleMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(0.9f));

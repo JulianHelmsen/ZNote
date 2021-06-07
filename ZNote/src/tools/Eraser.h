@@ -7,7 +7,7 @@ namespace app {
 	class Eraser : public Tool {
 	public:
 		Eraser() : m_size(0.02f) {}
-		void OnDrag(const glm::vec2& prev, const glm::vec2& newpos, int button) override;
+		void OnDrag(MouseButton button, const glm::vec2& prev, const glm::vec2& newpos) override;
 		
 
 	private:

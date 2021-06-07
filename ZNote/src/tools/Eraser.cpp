@@ -91,12 +91,12 @@ namespace app {
 		}
 	}
 
-	void Eraser::OnDrag(const glm::vec2& prevMousePos, const glm::vec2& newpos, int button) {
+	void Eraser::OnDrag(MouseButton button, const glm::vec2& prev, const glm::vec2& newpos) {
 		renderer::Batch<Vertex>& batch = m_context->lineBatch;
 		std::vector<uint32_t>& indices = batch.GetIndexList();
 		std::vector<Vertex>& vertices = batch.GetVertexList();
 
-		glm::vec2 mouseDir = newpos - prevMousePos;
+		glm::vec2 mouseDir = newpos - prev;
 		float radius = m_size / m_context->scaleMatrix[0][0];
 
 		for(int i = (int) indices.size() - 1; i >= 1; i -= 2) {
@@ -114,7 +114,7 @@ namespace app {
 
 			float t;
 			float r;
-			CalculateIntersection(prevMousePos, mouseDir, first.position, dir, &t, &r);
+			CalculateIntersection(prev, mouseDir, first.position, dir, &t, &r);
 			bool intersects = t >= 0.0f && t <= 1.0f && r >= 0.0f && r <= 1.0f;
 
 			bool removeByDistance = glm::length(first.position - newpos) < radius || glm::length(second.position - newpos) < radius;

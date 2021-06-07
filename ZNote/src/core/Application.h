@@ -38,11 +38,14 @@ namespace app {
 		uint32_t m_uniformLocationViewProjection;
 
 		void Update();
-		void OnMouseDragged(uint32_t oldX, uint32_t oldY, uint32_t x, uint32_t y, int button);
-		void OnMouseButtonStateChanged(MouseButton button, uint32_t x, uint32_t y, bool isdown);
-		void OnResize();
-		void OnKeyPress(uint32_t keycode, uint32_t mods);
-		void OnScroll(int dir);
+
+		void OnEvent(app::Event& event);
+
+		void OnMouseDragged(MouseDragged& event);
+		void OnMouseButtonStateChanged(Event& event);
+		void OnResize(const WindowResized&);
+		void OnKeyPress(const KeyPressed& event);
+		void OnScroll(const MouseScrolled& scolled);
 		void UseTool(Tool* tool);
 		void ClipboardImagePasted(const os::ClipboardImage& image);
 		void AddImage(Image& image);

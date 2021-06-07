@@ -12,7 +12,7 @@ namespace app {
 	TransformTool::TransformationType TransformTool::s_transformationType = TransformationType::TRANSLATION;
 	static glm::vec2 s_defaultArrowSize = glm::vec2(0.2f, 0.2f);
 
-	void TransformTool::OnDrag(const glm::vec2& prev, const glm::vec2& newpos, int button) {
+	void TransformTool::OnDrag(MouseButton button, const glm::vec2& prev, const glm::vec2& newpos) {
 		if (!m_selectedAxis)
 			return; // user had not dragged an axis -> no update of transformation
 		ASSERT(m_target);
@@ -132,7 +132,7 @@ namespace app {
 
 
 	void TransformTool::OnButtonStateChanged(MouseButton button, const glm::vec2& mouseWorldPos, bool down) {
-		if (button == MouseButton::Right)
+		if (button == MouseButton::RIGHT)
 			return;
 
 		if (button == MouseButton::WHEEL && down) {

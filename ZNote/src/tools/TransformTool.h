@@ -12,7 +12,7 @@ namespace app {
 	class TransformTool : public Tool {
 	public:
 		void OnButtonStateChanged(MouseButton button, const glm::vec2& pos, bool down) override;
-		void OnDrag(const glm::vec2& prev, const glm::vec2& newpos, int button) override;
+		void OnDrag(MouseButton button, const glm::vec2& prev, const glm::vec2& newpos) override;
 		void OnKeyPress(uint32_t keycode) override;
 
 		void Draw() const override;

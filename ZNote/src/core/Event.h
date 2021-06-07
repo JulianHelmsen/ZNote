@@ -4,6 +4,7 @@
 #include <string.h>
 #include <core/Logger.h>
 #include <assert.h>
+#include "Keycodes.h"
 
 namespace app {
 
@@ -32,14 +33,14 @@ namespace app {
 		}
 
 		template<typename EventType>
-		EventType& GetEvent() {
+		EventType& Get() {
 			static_assert(sizeof(EventType) < sizeof(m_concreteEvent));
 			assert(m_typeId == GenerateTypeId<EventType>());
 			return *(EventType*)m_concreteEvent;
 		}
 
 		template<typename EventType>
-		const EventType& GetEvent() const {
+		const EventType& Get() const {
 			static_assert(sizeof(EventType) < sizeof(m_concreteEvent));
 			assert(m_typeId == GenerateTypeId<EventType>());
 			return *(EventType*)m_concreteEvent;
@@ -56,6 +57,14 @@ namespace app {
 	};
 
 
+	struct MouseDragged {
+		MouseButton button;
+		uint32_t startX;
+		uint32_t startY;
+		uint32_t endX;
+		uint32_t endY;
+	};
+
 	struct MouseMoved {
 		uint32_t oldX;
 		uint32_t oldY;
@@ -66,17 +75,25 @@ namespace app {
 	struct MousePressed {
 		uint32_t mouseX;
 		uint32_t mouseY;
-		uint32_t button;
+		MouseButton button;
+	};
+
+
+	struct MouseReleased {
+		uint32_t mouseX;
+		uint32_t mouseY;
+		MouseButton button;
 	};
 
 	struct MouseScrolled {
 		uint32_t mouseX;
 		uint32_t mouseY;
-		uint32_t dir;
+		int direction;
 	};
 
 	struct KeyPressed {
 		uint32_t keycode;
+		uint32_t mods;
 	};
 
 	struct WindowResized {

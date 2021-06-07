@@ -5,56 +5,42 @@
 
 
 static GLFWwindow* s_window = NULL;
-static int mousePressed = 0;
+static MouseButton mousePressed = (MouseButton) 0xFFFFFFFF;
 static uint32_t mouseX = 0xFFFFFFFF, mouseY = 0xFFFFFFFF;
 
 
 
 
-static struct {
-	std::function<void()> resize;
-	std::function<void(uint32_t, uint32_t, uint32_t, uint32_t, int button)> drag;
-	std::function<void(int)> scrollWheel;
-	std::function<void(MouseButton, uint32_t, uint32_t, bool)> buttonCallback;
-	std::function<void(uint32_t, uint32_t)> key;
-}s_callbacks;
+std::function<void(app::Event&)> s_eventCallback;
 
-void Window::OnMouseDragged(int button, uint32_t x, uint32_t y, uint32_t nx, uint32_t ny) {
+void Window::OnMouseDragged(MouseButton button, uint32_t x, uint32_t y, uint32_t nx, uint32_t ny) {
 
-	button -= 1;
+	
 	int w, h;
-
 	glfwGetWindowSize(s_window, &w, &h);
+	uint32_t width = (uint32_t)w;
+	uint32_t height = (uint32_t)h;
 
-	int px = x;
-	int py = y;
-	int inx = nx;
-	int iny = ny;
+	app::Event event;
+	app::MouseDragged data;
 
-	if(px >= 0 && py >= 0 && py < h && px < w && inx >= 0 && iny >= 0 && iny < h && inx < w)
-		s_callbacks.drag(x, y, nx, ny, button);
+	data.button = button;
+	data.startX = x;
+	data.startY = y;
+	data.endX = nx;
+	data.endY = ny;
+	event.Set(data);
+
+	// bounds checking
+	if (data.startX < width && data.startY < height && data.endX < width && data.endY < height && s_eventCallback)
+		s_eventCallback(event);
 }
 
-void Window::SetKeyCallback(std::function<void(uint32_t, uint32_t)> key) {
-	s_callbacks.key = key;
-}
-
-void Window::SetResizeCallback(std::function<void()> resizeCallback) {
-	s_callbacks.resize = resizeCallback;
-}
-
-void Window::SetDragCallback(std::function<void(uint32_t, uint32_t, uint32_t, uint32_t, int)> callback) {
-	s_callbacks.drag = callback;
-}
-
-void Window::SetScrollWheelCallback(std::function<void(int)> callback) {
-	s_callbacks.scrollWheel = callback;
+void Window::SetEventCallback(std::function<void(app::Event&)> eventCallback) {
+	s_eventCallback = eventCallback;
 }
 
 
-void Window::SetMouseButtonCallback(std::function<void(MouseButton, uint32_t, uint32_t, bool)> callback) {
-	s_callbacks.buttonCallback = callback;
-}
 
 
 
@@ -88,24 +74,33 @@ void Window::Create() {
 		uint32_t cursorX = (uint32_t)x;
 		uint32_t cursorY = (uint32_t)y;
 
-		if(s_callbacks.buttonCallback)
-			s_callbacks.buttonCallback((MouseButton) button, cursorX, cursorY, action == GLFW_PRESS);
 
-		if (action == GLFW_PRESS)
-			mousePressed = button + 1;
-		else
-			mousePressed = 0;
+		app::Event event;
+		if (action == GLFW_PRESS) {
+			app::MousePressed pressed;
+			pressed.mouseX = cursorX;
+			pressed.mouseY = cursorY;
+			pressed.button = (MouseButton) (button);
+			mousePressed = pressed.button;
+			event.Set(pressed);
+		}else{
+			app::MouseReleased released;
+			released.mouseX = cursorX;
+			released.mouseY = cursorY;
+			released.button = (MouseButton) (button);
+			event.Set(released);
+			mousePressed = (MouseButton)0xFFFFFFFF;
+		}
 		
-
-		mouseX = cursorX;
-		mouseY = cursorY;
+		if(s_eventCallback)
+			s_eventCallback(event);
 	});
 
 	glfwSetCursorPosCallback(s_window, [](GLFWwindow* window, double x, double y) -> void {
 		uint32_t newMousePosX = (uint32_t)x;
 		uint32_t newMousePosY = (uint32_t)y;
 
-		if (mousePressed && (newMousePosX != mouseX || newMousePosY != mouseY)) {
+		if ((uint32_t)mousePressed != 0xFFFFFFFF && (newMousePosX != mouseX || newMousePosY != mouseY)) {
 			// mouse dragged somewhere else
 			Window::OnMouseDragged(mousePressed, mouseX, mouseY, newMousePosX, newMousePosY);
 		}
@@ -116,24 +111,48 @@ void Window::Create() {
 	});
 
 	glfwSetFramebufferSizeCallback(s_window, [](GLFWwindow* window, int w, int h) -> void {
-		s_callbacks.resize();
+		app::Event event;
+		app::WindowResized resized;
+		resized.newWidth = (uint32_t)w;
+		resized.newHeight = (uint32_t)h;
+		event.Set(resized);
+
+		s_eventCallback(event);
 	});
 
 	glfwSetScrollCallback(s_window, [](GLFWwindow* window, double x, double y) -> void {
-		int dir = (int) y;
-		if(s_callbacks.scrollWheel)
-			s_callbacks.scrollWheel(dir);
+		
+		app::Event event;
+		app::MouseScrolled scrolled;
+		scrolled.direction = (int)y;
+		event.Set(scrolled);
+		if (s_eventCallback)
+			s_eventCallback(event);
 	});
 
 	glfwSetKeyCallback(s_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) -> void {
-		if (action == GLFW_PRESS && s_callbacks.key) {
-			s_callbacks.key(key, mods);
+		
+		
+		if (action == GLFW_PRESS) {
+			app::Event event;
+			app::KeyPressed keypressed; 
+			keypressed.keycode = (uint32_t) key;
+			keypressed.mods = (uint32_t) mods;
+			event.Set(keypressed);
+
+			if(s_eventCallback)
+				s_eventCallback(event);
+			
 		}
+
 	});
 
-	if (s_callbacks.resize)
-		s_callbacks.resize();
-	
+	app::Event event;
+	app::WindowResized resized;
+	resized.newWidth = defaultWidth;
+	resized.newHeight = defaultHeight;
+	event.Set(resized);
+	s_eventCallback(event);
 }
 
 

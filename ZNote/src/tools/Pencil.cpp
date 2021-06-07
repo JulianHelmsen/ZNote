@@ -19,7 +19,7 @@ namespace app {
 	}
 	
 
-	void Pencil::OnDrag(const glm::vec2& prev, const glm::vec2& newpos, int button) {
+	void Pencil::OnDrag(MouseButton button, const glm::vec2& prev, const glm::vec2& newpos) {
 		
 		// check if the last line is connected to this one and wether they can be merged into one line segment
 		if (m_newStroke) {

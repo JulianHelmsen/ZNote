@@ -8,6 +8,13 @@
 
 #define MAX_TEXTURE_SLOTS (3)
 
+
+struct ImageVertex {
+	glm::vec2 position;
+	glm::vec2 uv;
+	uint8_t textureId;
+};
+
 struct GlMesh {
 	uint32_t vao;
 	uint32_t vbo;
@@ -23,7 +30,7 @@ static struct {
 	GlMesh lineMesh;
 	GlProgram lineProgram;
 
-	renderer::Batch<app::ImageVertex> imageBatch;
+	renderer::Batch<ImageVertex> imageBatch;
 	GlMesh imageMesh;
 	GlProgram imageProgram;
 

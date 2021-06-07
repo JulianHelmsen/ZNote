@@ -14,11 +14,6 @@ namespace app {
 		Color color;
 	};
 
-	struct ImageVertex {
-		glm::vec2 position;
-		glm::vec2 uv;
-		uint8_t textureId;
-	};
 
 	struct Image {
 		glm::vec2 centerPos;

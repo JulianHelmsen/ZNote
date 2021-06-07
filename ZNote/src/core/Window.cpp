@@ -121,10 +121,16 @@ void Window::Create() {
 	});
 
 	glfwSetScrollCallback(s_window, [](GLFWwindow* window, double x, double y) -> void {
-		
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+
 		app::Event event;
 		app::MouseScrolled scrolled;
 		scrolled.direction = (int)y;
+		scrolled.mouseX = (uint32_t)xpos;
+		scrolled.mouseY = (uint32_t)ypos;
+		
+
 		event.Set(scrolled);
 		if (s_eventCallback)
 			s_eventCallback(event);

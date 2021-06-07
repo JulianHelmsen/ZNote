@@ -84,6 +84,7 @@ namespace app {
 		// recalculate matrices
 		m_scene.viewMatrix = m_scene.scaleMatrix * m_scene.translationMatrix;
 		m_viewProjectionMatrix = m_projectionMatrix * m_scene.viewMatrix;
+
 		// clear screen buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 

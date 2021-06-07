@@ -57,7 +57,33 @@ namespace app {
 
 
 	struct MouseMoved {
-
+		uint32_t oldX;
+		uint32_t oldY;
+		uint32_t newX;
+		uint32_t newY;
 	};
+
+	struct MousePressed {
+		uint32_t mouseX;
+		uint32_t mouseY;
+		uint32_t button;
+	};
+
+	struct MouseScrolled {
+		uint32_t mouseX;
+		uint32_t mouseY;
+		uint32_t dir;
+	};
+
+	struct KeyPressed {
+		uint32_t keycode;
+	};
+
+	struct WindowResized {
+		uint32_t newWidth;
+		uint32_t newHeight;
+	};
+
+
 
 }

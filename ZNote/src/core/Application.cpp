@@ -51,7 +51,6 @@ namespace app {
 			assert(layer);
 			layer->OnEvent(event);
 			
-			bool decreaseIt = true;
 			if (layer->CanBeDeleted()) {
 				m_layers.erase(m_layers.begin() + i);
 				i++; // next iteration => same index

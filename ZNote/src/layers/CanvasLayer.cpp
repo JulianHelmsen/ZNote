@@ -20,13 +20,13 @@ namespace app {
 
 	void CanvasLayer::OnKeyPress(const KeyPressed& event) {
 		if (event.keycode == KEY_E)
-		Tool::UseTool(new Eraser);
+			Tool::UseTool(new Eraser);
 		else if (event.keycode == KEY_P)
-		Tool::UseTool(new Pencil);
+			Tool::UseTool(new Pencil);
 		else if (event.keycode == KEY_T)
-		Tool::UseTool(new TransformTool);
+			Tool::UseTool(new TransformTool);
 		else if (event.keycode == KEY_I) {
-		// load image and add it to scene
+			// load image and add it to scene
 			std::optional<std::string> filepath = os::ShowOpenDialog(NULL);
 			if (filepath) {
 				Image image;
@@ -128,6 +128,7 @@ namespace app {
 		uint32_t y;
 		MouseButton button;
 		bool isdown;
+		
 
 		if (event.IsOfType<MousePressed>()) {
 			isdown = true;

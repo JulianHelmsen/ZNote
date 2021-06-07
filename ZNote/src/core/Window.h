@@ -4,6 +4,7 @@
 #include <functional>
 #include "Keycodes.h"
 #include "Event.h"
+#include <glm/glm.hpp>
 
 
 
@@ -24,6 +25,8 @@ public:
 	static void* GetNativeHandle();
 
 	static void SetEventCallback(std::function<void(app::Event&)> eventCallback);
+
+	static glm::vec2 NormalizeScreenCoordinates(uint32_t x, uint32_t y);
 
 	
 private:

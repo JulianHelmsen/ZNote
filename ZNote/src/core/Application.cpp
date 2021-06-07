@@ -15,13 +15,6 @@ namespace app {
 
 	Application* Application::s_app = NULL;
 
-	glm::vec2 Normalize(uint32_t x, uint32_t y) {
-		glm::vec2 pos;
-		pos.x = (float)x / Window::GetWidth() * 2 - 1;
-		pos.y = (float)y / Window::GetHeight() * 2 - 1;
-		pos.y = -pos.y;
-		return pos;
-	}
 
 
 	
@@ -81,8 +74,8 @@ namespace app {
 
 	void Application::OnMouseDragged(MouseDragged& event) {
 		glm::mat4 inverse = glm::inverse(m_viewProjectionMatrix);
-		glm::vec2 normalizedOld = inverse * glm::vec4(Normalize(event.startX, event.startY), 0.0f, 1.0f);
-		glm::vec2 normalized = inverse * glm::vec4(Normalize(event.endX, event.endY), 0.0f, 1.0f);
+		glm::vec2 normalizedOld = inverse * glm::vec4(Window::NormalizeScreenCoordinates(event.startX, event.startY), 0.0f, 1.0f);
+		glm::vec2 normalized = inverse * glm::vec4(Window::NormalizeScreenCoordinates(event.endX, event.endY), 0.0f, 1.0f);
 
 		if (event.button == MouseButton::RIGHT) {
 			m_scene.translationMatrix[3][0] -= normalizedOld.x - normalized.x;
@@ -112,7 +105,7 @@ namespace app {
 			button = e.button;
 		}
 		glm::mat4 inverse = glm::inverse(m_viewProjectionMatrix);
-		glm::vec2 mousePos = inverse * glm::vec4(Normalize(x, y), 0.0f, 1.0f);
+		glm::vec2 mousePos = inverse * glm::vec4(Window::NormalizeScreenCoordinates(x, y), 0.0f, 1.0f);
 		if (m_currentTool)
 			m_currentTool->OnButtonStateChanged(button, mousePos, isdown);
 	}

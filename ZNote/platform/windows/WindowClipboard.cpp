@@ -73,6 +73,7 @@ namespace os {
 	}
 
 	void Clipboard::Enumerate() {
+		WIN32_CHECK_ERROR(GetLastError());
 		HWND hwnd = glfwGetWin32Window((GLFWwindow*)Window::GetNativeHandle());
 		WIN32_CALL(OpenClipboard(hwnd));
 

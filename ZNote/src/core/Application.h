@@ -8,6 +8,7 @@
 #include "tools/Tool.h"
 #include "os/Clipboard.h"
 #include "Event.h"
+#include "Layer.h"
 
 namespace app {
 
@@ -27,6 +28,7 @@ namespace app {
 		static const glm::mat4& GetProjectionMatrix() { return s_app->m_projectionMatrix; }
 		static const glm::mat4& GetViewProjectionMatrix() { return s_app->m_viewProjectionMatrix; }
 		static Application* GetApp() { return s_app; }
+		static Scene& GetActiveScene() { return s_app->m_scene; }
 	private:
 		static Application* s_app;
 		// Rendering buffers
@@ -41,24 +43,23 @@ namespace app {
 
 		void OnEvent(app::Event& event);
 
-		void OnMouseDragged(MouseDragged& event);
-		void OnMouseButtonStateChanged(Event& event);
 		void OnResize(const WindowResized&);
 		void OnKeyPress(const KeyPressed& event);
-		void OnScroll(const MouseScrolled& scolled);
-		void UseTool(Tool* tool);
 		void ClipboardImagePasted(const os::ClipboardImage& image);
-		void AddImage(Image& image);
+		bool IsLayerStackEmpty() const { return m_layers.size() > 0; }
+
+		void PushLayer(Layer* layer);
+		void PopLayer();
 		
 		
 		void Save();
 		void Load();
 
 		Scene m_scene;
-		Tool* m_currentTool = NULL;
 		glm::mat4 m_projectionMatrix;
 		glm::mat4 m_viewProjectionMatrix;
 
+		std::vector<Layer*> m_layers;
 		
 	};
 }

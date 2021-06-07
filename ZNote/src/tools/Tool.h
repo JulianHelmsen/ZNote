@@ -18,7 +18,12 @@ namespace app {
 		virtual void Draw() const {}
 
 		inline bool WantsToBeDrawn() const { return m_drawIcon; }
+
+		static void UseTool(Tool* tool);
+		static Tool* ActiveTool() { return s_usedTool; }
 	protected:
+		static Tool* s_usedTool;
+
 		Scene* m_context;
 		bool m_drawIcon = false;
 	};

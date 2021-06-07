@@ -175,8 +175,10 @@ bool Window::IsClosed() {
 
 glm::vec2 Window::NormalizeScreenCoordinates(uint32_t x, uint32_t y) {
 	glm::vec2 pos;
-	pos.x = (float)x / Window::GetWidth() * 2 - 1;
-	pos.y = (float)y / Window::GetHeight() * 2 - 1;
+	int w, h;
+	glfwGetWindowSize(s_window, & w, &h);
+	pos.x = (float)x / w * 2 - 1;
+	pos.y = (float)y / h * 2 - 1;
 	pos.y = -pos.y;
 	return pos;
 }

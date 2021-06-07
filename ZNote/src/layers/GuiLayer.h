@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/Layer.h"
+#include "gui/GuiComponent.h"
 
 namespace app {
 
@@ -16,5 +17,7 @@ namespace app {
 
 		virtual void OnUpdate() override;
 	private:
+
+		gui::GuiComponent* m_root;
 	};
 }

@@ -145,7 +145,7 @@ namespace app {
 		return 0xFFFFFFFF;
 	}
 
-	void Renderer2D::DrawImage(uint32_t textureId, glm::vec2& position, const glm::vec2& size) {
+	void Renderer2D::DrawImage(uint32_t textureId, const glm::vec2& position, const glm::vec2& size) {
 		bool bind;
 		uint32_t textureSlot = FindTextureSlot(textureId, &bind);
 		if (textureSlot == 0xFFFFFFFF) {

@@ -11,6 +11,7 @@
 #include "renderer/Renderer2D.h"
 #include "renderer/TextureLoader.h"
 #include "layers/CanvasLayer.h"
+#include "layers/GuiLayer.h"
 
 namespace app {
 
@@ -35,6 +36,7 @@ namespace app {
 		Tool::UseTool(new Pencil);
 
 		PushLayer(new CanvasLayer);
+		PushLayer(new GuiLayer);
 	}
 
 
@@ -43,23 +45,20 @@ namespace app {
 
 	void Application::OnEvent(app::Event& event) {
 
-		auto it = m_layers.begin();
-		while (it != m_layers.end()) {
-			Layer* layer = *it;
+		// last drawn layer is first to receive events
+		for(int32_t i = (int32_t) m_layers.size() - 1; i >= 0; i--) {
+			Layer* layer = m_layers[i];
 			assert(layer);
 			layer->OnEvent(event);
 			
-			bool increaseIt = true;
+			bool decreaseIt = true;
 			if (layer->CanBeDeleted()) {
-				it = m_layers.erase(it);
-				increaseIt = false;
+				m_layers.erase(m_layers.begin() + i);
+				i++; // next iteration => same index
 			}
 			
 			if (event.IsHandled())
 				return;
-
-			if(increaseIt)
-				it++;
 		}
 
 		if (event.IsOfType<WindowResized>()) {

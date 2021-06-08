@@ -35,7 +35,7 @@ namespace gui {
 			}
 
 			child->SetPosition(x, y);
-			child->Revalidate();
+			child->Invalidate();
 		}
 
 

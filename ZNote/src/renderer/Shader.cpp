@@ -86,23 +86,31 @@ namespace utils {
 			"layout(location = 0) in vec2 position;\n"
 			"layout(location = 1) in vec2 uv;\n"
 			"layout(location = 2) in uint texId;\n"
+			"layout(location = 3) in uint taint;\n"
 			"uniform mat4 viewProjectionMatrix;\n"
 			"flat out uint f_texId;\n"
 			"out vec2 outUv;\n"
+			"out vec4 taintColor;\n"
 			"void main() {\n"
 			"	gl_Position = viewProjectionMatrix * vec4(position, 0.0, 1.0);\n"
 			"	outUv = uv;\n"
-			"	f_texId = texId;\n"
+			"	f_texId = texId;\n"	
+			"	uint b = (taint >> 8) & 0xFF;\n"
+			"	uint g = (taint >> 16) & 0xFF;\n"
+			"	uint r = (taint >> 24) & 0xFF;\n"
+			"	uint a = taint & 0xFF;\n"
+			"	taintColor = vec4(r, g, b, a) / 255; \n"
 			"}\n";
 
 		std::string fragmentSource =
 			"#version 400 core\n"
 			"in vec2 outUv;\n"
+			"in vec4 taintColor;\n"
 			"out vec4 outColor;\n"
 			"uniform sampler2D u_textures[32];\n"
 			"flat in uint f_texId;\n"
 			"void main() {\n"
-			"	outColor = texture(u_textures[f_texId], outUv);\n"
+			"	outColor =  taintColor * texture(u_textures[f_texId], outUv);\n"
 			"}\n";
 		return CreateShaderProgram(vertexSource, fragmentSource);
 	}

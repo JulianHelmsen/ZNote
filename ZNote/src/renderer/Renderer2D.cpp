@@ -3,8 +3,9 @@
 #include <GL/glew.h>
 #include "Shader.h"
 #include <glm/gtc/type_ptr.hpp>
-#include <stdio.h>
+#include <core/Logger.h>
 #include <string.h>
+#include "TextureLoader.h"
 
 #define MAX_TEXTURE_SLOTS (3)
 
@@ -12,7 +13,8 @@
 struct ImageVertex {
 	glm::vec2 position;
 	glm::vec2 uv;
-	uint8_t textureId;
+	uint32_t textureId;
+	app::Color taint;
 };
 
 struct GlMesh {
@@ -37,7 +39,7 @@ static struct {
 	glm::mat4 projectionMatrix;	
 
 	uint32_t textureSlots[MAX_TEXTURE_SLOTS];
-	
+	uint32_t whiteTexture;
 }renderData;
 
 namespace app {
@@ -78,14 +80,17 @@ namespace app {
 		InitProgram(renderData.lineProgram);
 
 
+
 		InitializeEmptyMesh(renderData.imageMesh);
 		glEnableVertexAttribArray(0); // position
 		glEnableVertexAttribArray(1); // uv
 		glEnableVertexAttribArray(2); // texture id
+		glEnableVertexAttribArray(3); // taint
 
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ImageVertex), NULL);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ImageVertex), (const void*) sizeof(glm::vec2));
-		glVertexAttribIPointer(2, 1, GL_UNSIGNED_BYTE, sizeof(ImageVertex), (const void*) (sizeof(glm::vec2) * 2));
+		glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(ImageVertex), (const void*) (sizeof(glm::vec2) * 2));
+		glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(ImageVertex), (const void*)(sizeof(glm::vec2) * 2 + sizeof(uint32_t)));
 
 		renderData.imageProgram.id = utils::CreateImageShaderProgram();
 		InitProgram(renderData.imageProgram);
@@ -97,6 +102,9 @@ namespace app {
 		glUniform1iv(samplerSlotLoc, MAX_TEXTURE_SLOTS, (int*) shaderSamplers);
 		
 		memset(renderData.textureSlots, 0xFF, sizeof(renderData.textureSlots));
+
+
+		renderData.whiteTexture = utils::TextureLoader::GetWhiteTexture();
 	}
 
 	void Renderer2D::CleanUp() {
@@ -104,6 +112,8 @@ namespace app {
 		glDeleteProgram(renderData.imageProgram.id);
 		DeleteMesh(renderData.lineMesh);
 		DeleteMesh(renderData.imageMesh);
+
+		glDeleteTextures(1, &renderData.whiteTexture);
 		
 	}
 
@@ -145,7 +155,11 @@ namespace app {
 		return 0xFFFFFFFF;
 	}
 
-	void Renderer2D::DrawImage(uint32_t textureId, const glm::vec2& position, const glm::vec2& size) {
+	void Renderer2D::DrawRect(const glm::vec2& position, const glm::vec2& size, Color color) {
+		DrawImage(renderData.whiteTexture, position, size, color);
+	}
+
+	void Renderer2D::DrawImage(uint32_t textureId, const glm::vec2& position, const glm::vec2& size, Color color) {
 		bool bind;
 		uint32_t textureSlot = FindTextureSlot(textureId, &bind);
 		if (textureSlot == 0xFFFFFFFF) {
@@ -159,6 +173,7 @@ namespace app {
 
 		renderer::SubMesh<ImageVertex> mesh;
 		ImageVertex imageVertex;
+		imageVertex.taint = color;
 
 		imageVertex.position = position;
 		imageVertex.uv = glm::vec2(0.0f, 0.0f);

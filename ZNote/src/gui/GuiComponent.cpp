@@ -36,6 +36,11 @@ namespace gui {
 		m_bounds.position = glm::vec2(x, y);
 	}
 
+	void GuiComponent::SetVisible(bool visible) {
+		m_visible = visible;
+		if(m_parent)
+			m_parent->Invalidate();
+	}
 
 	void GuiComponent::Delete() {
 		for (GuiComponent* child : m_children)
@@ -48,12 +53,15 @@ namespace gui {
 			child->Revalidate();
 	}
 
-	void GuiComponent::Draw() const {
+	void GuiComponent::DrawAndRevalidate() {
+		if (!m_valid)
+			Revalidate();
+
 		if(m_visible)
 			app::Renderer2D::DrawRect(m_bounds.position, m_bounds.size, m_color);
 
 		for (GuiComponent* child : m_children)
-			child->Draw();
+			child->DrawAndRevalidate();
 	}
 
 

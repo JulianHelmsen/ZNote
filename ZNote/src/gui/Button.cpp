@@ -1,6 +1,7 @@
 #include "Button.h"
 #include "renderer/Renderer2D.h"
 #include "renderer/TextureLoader.h"
+#include <core/Logger.h>
 
 
 namespace gui {

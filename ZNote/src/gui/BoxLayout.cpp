@@ -18,6 +18,9 @@ namespace gui {
 		}
 
 		for (GuiComponent* child : m_children) {
+			if (!child->IsVisible()) {
+				continue;
+			}
 			// position children
 			// calculate bottom left position
 			float x = xOffset;

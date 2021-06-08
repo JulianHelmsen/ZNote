@@ -29,8 +29,9 @@ namespace app {
 
 		button1->SetSize(0.1f, 0.1f);
 		button2->SetSize(0.1f, 0.1f);
-		button3->SetSize(0.1f, 0.1f);
+		button3->SetSize(0.2f, 0.1f);
 		button4->SetSize(0.1f, 0.1f);
+
 
 		boxLayout->AddChild(button1);
 		boxLayout->AddChild(button2);
@@ -38,6 +39,7 @@ namespace app {
 		boxLayout->AddChild(button4);
 
 		m_root->Revalidate();
+
 	}
 
 	void GuiLayer::OnEvent(Event& event) {
@@ -80,7 +82,7 @@ namespace app {
 
 	void GuiLayer::OnUpdate() {
 		Renderer2D::Begin(m_projectionMatrix);
-		m_root->Draw();
+		m_root->DrawAndRevalidate();
 		Renderer2D::End();
 	}
 

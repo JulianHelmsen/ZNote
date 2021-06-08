@@ -20,7 +20,7 @@ namespace gui {
 		~GuiComponent() { Delete(); }
 		void Delete();
 		
-		virtual void Draw() const;
+		virtual void DrawAndRevalidate();
 
 		/*
 		* returns whether a gui component has consumed this event
@@ -48,6 +48,7 @@ namespace gui {
 		inline float GetY() const { return m_bounds.position.y; }
 		
 		bool IsVisible() const { return m_visible; }
+		void SetVisible(bool visible);
 		void AddChild(GuiComponent* child);
 	protected:
 		bool m_visible = false;

@@ -19,7 +19,7 @@ namespace gui {
 
 
 	bool GuiComponent::IsOverGui(const glm::vec2& position) const {
-		if (m_visible)
+		if (m_toRender)
 			return BoundingBoxContains(position);
 		
 		for (const GuiComponent* child : m_children)
@@ -36,8 +36,8 @@ namespace gui {
 		m_bounds.position = glm::vec2(x, y);
 	}
 
-	void GuiComponent::SetVisible(bool visible) {
-		m_visible = visible;
+	void GuiComponent::SetShouldBeRendered(bool toRender) {
+		m_toRender = toRender;
 		if(m_parent)
 			m_parent->Invalidate();
 	}
@@ -48,18 +48,31 @@ namespace gui {
 		
 	}
 
+	bool GuiComponent::IsVisible() const {
+		if (m_toRender)
+			return true;
+		for (GuiComponent* child : m_children)
+			if (child->IsVisible())
+				return true;
+		return false;
+	}
 
 	void GuiComponent::DrawAndRevalidate() {
 		if (!m_valid)
 			Revalidate();
 
-		if(m_visible)
-			app::Renderer2D::DrawRect(m_bounds.position, m_bounds.size, m_color);
+		if(m_toRender)
+			app::Renderer2D::DrawImage(m_textureId, m_bounds.position, m_bounds.size, m_color);
 
 		for (GuiComponent* child : m_children)
 			child->DrawAndRevalidate();
 	}
 
+	void GuiComponent::ForEachChild(ForEachChildFunction func) {
+		for (uint32_t i = 0; i < m_children.size(); i++) {
+			func(i, m_children[i]);
+		}
+	}
 
 	/*
 	* AABB collision detection
@@ -76,7 +89,8 @@ namespace gui {
 					return true;
 			}
 
-			return Clicked();
+			if(m_toRender)
+				return Clicked();
 		}
 		return false;
 	}

@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <core/Logger.h>
-#include <assert.h>
 #include "Keycodes.h"
 
 namespace app {
@@ -35,14 +34,14 @@ namespace app {
 		template<typename EventType>
 		EventType& Get() {
 			static_assert(sizeof(EventType) < sizeof(m_concreteEvent));
-			assert(m_typeId == GenerateTypeId<EventType>());
+			ASSERT(m_typeId == GenerateTypeId<EventType>());
 			return *(EventType*)m_concreteEvent;
 		}
 
 		template<typename EventType>
 		const EventType& Get() const {
 			static_assert(sizeof(EventType) < sizeof(m_concreteEvent));
-			assert(m_typeId == GenerateTypeId<EventType>());
+			ASSERT(m_typeId == GenerateTypeId<EventType>());
 			return *(EventType*)m_concreteEvent;
 		}
 

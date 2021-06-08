@@ -6,16 +6,19 @@ namespace app {
 
 	uint32_t Pencil::colorPalleteIdx = 0;
 
+	Color Pencil::colorPallete[9]{
+		PINK,
+		GREEN,
+		CORAL,
+		YELLOW,
+		TEAL,
+		LIGHT_BLUE,
+		BLUE,
+		PURPLE,
+		WHITE
+	};
+
 	Pencil::Pencil() : m_newStroke(true) {
-		colorPallete[0] = PINK;
-		colorPallete[1] = GREEN;
-		colorPallete[2] = CORAL;
-		colorPallete[3] = YELLOW;
-		colorPallete[4] = TEAL;
-		colorPallete[5] = LIGHT_BLUE;
-		colorPallete[6] = BLUE;
-		colorPallete[7] = PURPLE;
-		colorPallete[8] = WHITE;
 	}
 	
 
@@ -53,6 +56,10 @@ namespace app {
 	void Pencil::OnKeyPress(uint32_t keycode) {
 		if (keycode >= KEY_1 && keycode <= KEY_9)
 			colorPalleteIdx = keycode - KEY_1;
+	}
+
+	void Pencil::SetSelectedColorIndex(uint32_t idx) {
+		colorPalleteIdx = idx;
 	}
 
 

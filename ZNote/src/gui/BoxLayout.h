@@ -15,7 +15,7 @@ namespace gui {
 		enum class Alignment { CENTER, EDGE };
 		enum class ScalingOp { KEEP_ASPECT_RATIO };
 
-		BoxLayout(Direction direction) : m_direction(direction) {}
+		BoxLayout(Direction direction) : m_direction(direction) { }
 
 		void SetAlignment(Alignment alignment) { m_alignment = alignment; }
 		void Revalidate() override;

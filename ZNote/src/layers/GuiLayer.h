@@ -23,5 +23,10 @@ namespace app {
 		gui::GuiComponent* m_root;
 		glm::mat4 m_projectionMatrix;
 		glm::mat4 m_inverseProjectionMatrix;
+
+		uint32_t m_bucketTextureId;
+		uint32_t m_pencilTextureId;
+		uint32_t m_eraserTextureId;
+		uint32_t m_transformTextureId;
 	};
 }

@@ -48,7 +48,7 @@ namespace app {
 		// last drawn layer is first to receive events
 		for(int32_t i = (int32_t) m_layers.size() - 1; i >= 0; i--) {
 			Layer* layer = m_layers[i];
-			assert(layer);
+			ASSERT(layer);
 			layer->OnEvent(event);
 			
 			if (layer->CanBeDeleted()) {

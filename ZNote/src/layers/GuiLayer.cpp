@@ -4,7 +4,13 @@
 #include "core/Window.h"
 #include "core/Logger.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include "tools/Pencil.h"
+#include <tools/TransformTool.h>
+#include <tools/Eraser.h>
+#include "GuiLayerImages.h"
+#include <GL/glew.h>
 
+#define GUI_DEBUG 0
 
 namespace app {
 
@@ -13,33 +19,86 @@ namespace app {
 
 
 	void GuiLayer::OnAttach() {
-		m_root = new gui::GuiComponent;
+		m_root = new gui::BoxLayout(gui::BoxLayout::Direction::X_AXIS);
 		OnResize(Window::GetWidth(), Window::GetHeight());
+		((gui::BoxLayout*)m_root)->SetAlignment(gui::BoxLayout::Alignment::CENTER);
 		
-		gui::BoxLayout* boxLayout = new gui::BoxLayout(gui::BoxLayout::Direction::Y_AXIS);
-		boxLayout->SetAlignment(gui::BoxLayout::Alignment::CENTER);
-		m_root->AddChild(boxLayout);
-		boxLayout->SetPosition(0.0f, 0.0f);
-		boxLayout->SetSize(0.1f, 0.4f);
+		
+		gui::BoxLayout* toolList = new gui::BoxLayout(gui::BoxLayout::Direction::Y_AXIS);
+		toolList->SetAlignment(gui::BoxLayout::Alignment::EDGE);
+		m_root->AddChild(toolList);
+		toolList->SetPosition(0.0f, 0.0f);
+		toolList->SetSize(0.1f, 0.4f);
 
-		gui::Button* button1 = new gui::Button;
-		gui::Button* button2 = new gui::Button;
-		gui::Button* button3 = new gui::Button;
-		gui::Button* button4 = new gui::Button;
+		gui::BoxLayout* colorList = new gui::BoxLayout(gui::BoxLayout::Direction::X_AXIS);
+		colorList->SetSize(0.1f, 0.1f);
+		
 
-		button1->SetSize(0.1f, 0.1f);
-		button2->SetSize(0.1f, 0.1f);
-		button3->SetSize(0.2f, 0.1f);
-		button4->SetSize(0.1f, 0.1f);
+		
+		gui::Button* paintButton = new gui::Button();
+		gui::Button* eraseButton = new gui::Button();
+		gui::Button* transformButton = new gui::Button();
+
+		paintButton->SetSize(0.1f, 0.1f);
+		eraseButton->SetSize(0.1f, 0.1f);
+		transformButton->SetSize(0.1f, 0.1f);
+
+		// elements to tool list are added bottom to top
+
+		gui::Button* colorSelectionButton = new gui::Button;
+		colorSelectionButton->SetColor({ 255, 255, 0 });
+		colorSelectionButton->SetSize(0.1f, 0.1f);
+		colorList->AddChild(colorSelectionButton);
+
+		
+		m_bucketTextureId = utils::TextureLoader::LoadTexture(s_bucketImage, 32, 32, 4);
+
+		colorSelectionButton->SetClickCallback([colorList]() -> void {
+			colorList->ForEachChild([](uint32_t idx, gui::GuiComponent* child)-> void {
+				static bool currentlyVisible = false;
+
+				if (idx == 1)
+					currentlyVisible = child->ShouldBeRendered();
+
+				if (idx > 0)
+					child->SetShouldBeRendered(!currentlyVisible);
+
+			});
+		});
+
+		for (uint32_t i = 0; i < Pencil::GetColorPalleteSize(); i++) {
+			app::Color color = Pencil::GetColorPallete()[i];
+			color.a = 240;
+
+			gui::Button* colorButton = new gui::Button();
+			colorButton->SetTexture(m_bucketTextureId);
+			
+			colorButton->SetClickCallback([i]() -> void {
+				Pencil::SetSelectedColorIndex(i);
+			});
+
+			colorButton->SetSize(0.1f, 0.1f);
+			colorButton->SetColor(color);
+			colorList->AddChild(colorButton);
+		}
+
+		colorList->Revalidate();
 
 
-		boxLayout->AddChild(button1);
-		boxLayout->AddChild(button2);
-		boxLayout->AddChild(button3);
-		boxLayout->AddChild(button4);
+		toolList->AddChild(transformButton);
+		toolList->AddChild(eraseButton);
+		toolList->AddChild(paintButton);
+		toolList->AddChild(colorList);
+
+		transformButton->SetClickCallback([]() -> void {
+			Tool::UseTool(new TransformTool);
+		});
+		eraseButton->SetClickCallback([]() -> void {Tool::UseTool(new Eraser); });
+		paintButton->SetClickCallback([]() -> void {Tool::UseTool(new Pencil); });
+
+		toolList->Revalidate();
 
 		m_root->Revalidate();
-
 	}
 
 	void GuiLayer::OnEvent(Event& event) {
@@ -49,6 +108,7 @@ namespace app {
 			glm::vec2 normalizedMousePos = m_inverseProjectionMatrix * glm::vec4(Window::NormalizeScreenCoordinates(pressed.mouseX, pressed.mouseY), 0.0f, 1.0f);
 
 			bool hit = m_root->CheckForMouseClick(normalizedMousePos);
+
 			// if the mouse clicked on a gui element the event is consumed
 			if (hit)
 				event.Handled();
@@ -78,6 +138,7 @@ namespace app {
 
 	void GuiLayer::OnDetach() {
 		delete m_root;
+		glDeleteTextures(1, &m_bucketTextureId);
 	}
 
 	void GuiLayer::OnUpdate() {

@@ -4,19 +4,25 @@
 #include <vector>
 #include <stdint.h>
 #include "Color.h"
+#include <functional>
+#include "renderer/TextureLoader.h"
 
 
 namespace gui {
 
 	struct BoundingBox {
-		glm::vec2 position;
-		glm::vec2 size;
+		glm::vec2 position{};
+		glm::vec2 size{};
 	};
 
 
 
 	class GuiComponent {
 	public:
+
+		using ForEachChildFunction = std::function<void(uint32_t idx, GuiComponent* child)>;
+
+		GuiComponent() : m_color(app::Color{ 255, 255, 255, 255 }), m_textureId(utils::TextureLoader::GetWhiteTexture()) {}
 		~GuiComponent() { Delete(); }
 		void Delete();
 		
@@ -47,11 +53,17 @@ namespace gui {
 		inline float GetX() const { return m_bounds.position.x; }
 		inline float GetY() const { return m_bounds.position.y; }
 		
-		bool IsVisible() const { return m_visible; }
-		void SetVisible(bool visible);
+		bool IsVisible() const;
+		bool ShouldBeRendered() { return m_toRender; }
+		void SetShouldBeRendered(bool visible);
 		void AddChild(GuiComponent* child);
+		void SetColor(app::Color color) { m_color = color; }
+
+		uint32_t GetChildCount() const { return (uint32_t) m_children.size(); }
+		void ForEachChild(ForEachChildFunction func);
+		void SetTexture(uint32_t texId) { m_textureId = texId; }
 	protected:
-		bool m_visible = false;
+		bool m_toRender = false;
 		app::Color m_color;
 
 		bool BoundingBoxContains(const glm::vec2& position) const;
@@ -67,5 +79,6 @@ namespace gui {
 		// whether the component is laid out correcly
 		bool m_valid;
 
+		uint32_t m_textureId;
 	};
 }

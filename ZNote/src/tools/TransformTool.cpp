@@ -15,6 +15,7 @@ namespace app {
 	void TransformTool::OnDrag(MouseButton button, const glm::vec2& prev, const glm::vec2& newpos) {
 		if (!m_selectedAxis)
 			return; // user had not dragged an axis -> no update of transformation
+
 		ASSERT(m_target);
 
 

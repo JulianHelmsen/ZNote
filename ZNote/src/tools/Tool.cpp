@@ -7,7 +7,7 @@ namespace app {
 
 
 	void Tool::UseTool(Tool* tool) {
-		assert(tool);
+		ASSERT(tool);
 		if (s_usedTool)
 			delete s_usedTool;
 

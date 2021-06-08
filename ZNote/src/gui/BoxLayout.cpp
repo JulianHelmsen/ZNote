@@ -3,9 +3,15 @@
 
 namespace gui {
 
+
 	void BoxLayout::Revalidate() {
 		float xOffset = GetX();
 		float yOffset = GetY();
+
+
+		float newWidth = 0.0f;
+		float newHeight = 0.0f;
+
 
 		if (m_direction == Direction::X_AXIS) {
 			if (m_alignment == Alignment::CENTER) {
@@ -29,8 +35,16 @@ namespace gui {
 			if (m_direction == Direction::X_AXIS) {
 				y -= child->GetHeight() * 0.5f;
 				xOffset += child->GetWidth(); // advance
+				newHeight = fmax(child->GetHeight(), newHeight);
+				
+				if (y < GetY())
+					y = GetY();
+
 			}else if (m_direction == Direction::Y_AXIS) {
 				x -= child->GetWidth() * 0.5f;
+				newWidth = fmax(child->GetWidth(), newWidth);
+				if (x < GetX())
+					x = GetX();
 				yOffset += child->GetHeight(); // advance
 			}
 
@@ -38,13 +52,21 @@ namespace gui {
 			child->Invalidate();
 		}
 
-
-		// resize container to fit all children in it
-		if (m_direction == Direction::X_AXIS && xOffset - GetX() > m_bounds.size.x) {
-			m_bounds.size.x = xOffset - GetX();
-		}else if(m_direction == Direction::Y_AXIS && yOffset - GetY() > m_bounds.size.y) {
-			m_bounds.size.y = yOffset - GetY();
+		glm::vec2 newSize;
+		if (m_direction == Direction::X_AXIS) {
+			newSize.x = xOffset - GetX(), m_bounds.size.x;
+			newSize.y = fmax(newHeight, m_bounds.size.y);
+		}else {
+			newSize.x = fmax(newWidth, m_bounds.size.x);
+			newSize.y = yOffset - GetY();
 		}
-	}
+
+		// careful: floating point comparision
+		if (newSize != m_bounds.size) {
+			m_bounds.size = newSize;
+			if(m_parent)
+				m_parent->Invalidate();
+		}
+}
 
 }

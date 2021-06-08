@@ -55,7 +55,7 @@ namespace utils {
 		return texId;
 	}
 
-	uint32_t TextureLoader::LoadTexture(const unsigned char* imageData, uint32_t width, uint32_t height, uint32_t numChannels) {
+	uint32_t TextureLoader::LoadTexture(const void* imageData, uint32_t width, uint32_t height, uint32_t numChannels) {
 		uint32_t texId;
 
 		glGenTextures(1, &texId);
@@ -75,7 +75,7 @@ namespace utils {
 			break;
 		}
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, imageData);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, imageData);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

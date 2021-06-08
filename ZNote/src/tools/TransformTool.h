@@ -25,7 +25,7 @@ namespace app {
 		static TransformationType s_transformationType;
 
 		glm::vec2 m_arrowSize;
-		uint32_t m_selectedAxis;
+		uint32_t m_selectedAxis = 0;
 
 
 		void TransformTarget(TransformationType type, const glm::vec2& values);

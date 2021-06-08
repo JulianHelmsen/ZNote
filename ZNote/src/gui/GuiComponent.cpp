@@ -61,6 +61,9 @@ namespace gui {
 	}
 
 
+	/*
+	* AABB collision detection
+	*/
 	bool GuiComponent::BoundingBoxContains(const glm::vec2& position) const {
 		return (position.x >= m_bounds.position.x && position.y >= m_bounds.position.y && position.x <= m_bounds.position.x + m_bounds.size.x && position.y <= m_bounds.position.y + m_bounds.size.y);
 	}

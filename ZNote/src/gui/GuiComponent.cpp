@@ -1,5 +1,5 @@
 #include "GuiComponent.h"
-
+#include <renderer/Renderer2D.h>
 
 
 namespace gui {
@@ -15,6 +15,17 @@ namespace gui {
 		m_children.push_back(child);
 
 		Invalidate();
+	}
+
+
+	bool GuiComponent::IsOverGui(const glm::vec2& position) const {
+		if (m_visible)
+			return BoundingBoxContains(position);
+		
+		for (const GuiComponent* child : m_children)
+			if (child->IsOverGui(position))
+				return true;
+		return false;
 	}
 
 	void GuiComponent::SetSize(float width, float height) {
@@ -38,7 +49,28 @@ namespace gui {
 	}
 
 	void GuiComponent::Draw() const {
+		if(m_visible)
+			app::Renderer2D::DrawRect(m_bounds.position, m_bounds.size, m_color);
+
 		for (GuiComponent* child : m_children)
 			child->Draw();
+	}
+
+
+	bool GuiComponent::BoundingBoxContains(const glm::vec2& position) const {
+		return (position.x >= m_bounds.position.x && position.y >= m_bounds.position.y && position.x <= m_bounds.position.x + m_bounds.size.x && position.y <= m_bounds.position.y + m_bounds.size.y);
+	}
+
+	bool GuiComponent::CheckForMouseClick(const glm::vec2& position) {
+		if (BoundingBoxContains(position)) {
+			// children before parent
+			for (GuiComponent* child : m_children) {
+				if (child->CheckForMouseClick(position))
+					return true;
+			}
+
+			return Clicked();
+		}
+		return false;
 	}
 }

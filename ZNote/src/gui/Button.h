@@ -7,7 +7,7 @@ namespace gui {
 
 	class Button : public GuiComponent {
 	public:
-		void Draw() const override;
-
+		Button();
+		bool Clicked() override;
 	};
 }

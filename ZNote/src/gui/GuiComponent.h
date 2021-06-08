@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <stdint.h>
-
+#include "Color.h"
 
 
 namespace gui {
@@ -19,11 +19,24 @@ namespace gui {
 	public:
 		~GuiComponent() { Delete(); }
 		void Delete();
+		
 		virtual void Draw() const;
+
+		/*
+		* returns whether a gui component has consumed this event
+		*/
+		virtual bool Clicked() { return false; }
+
+		/*
+		* Checks for bounding box and calls Clicked if position is inside bounding box
+		* returns whether a gui component has consumed the event
+		*/
+		bool CheckForMouseClick(const glm::vec2& position);
+		bool IsOverGui(const glm::vec2& position) const;
 
 		void Invalidate() { m_valid = false; }
 		virtual void Revalidate();
-		virtual bool IsValid() { return m_valid; }
+		bool IsValid() { return m_valid; }
 
 		void SetBounds(float left, float bottom, float width, float height);
 		void SetSize(float width, float height);
@@ -33,10 +46,14 @@ namespace gui {
 		inline float GetHeight() const { return m_bounds.size.y; }
 		inline float GetX() const { return m_bounds.position.x; }
 		inline float GetY() const { return m_bounds.position.y; }
-
+		
+		bool IsVisible() const { return m_visible; }
 		void AddChild(GuiComponent* child);
 	protected:
+		bool m_visible = false;
+		app::Color m_color;
 
+		bool BoundingBoxContains(const glm::vec2& position) const;
 
 		
 		GuiComponent* m_parent = NULL;

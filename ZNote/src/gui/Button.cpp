@@ -1,11 +1,16 @@
 #include "Button.h"
 #include "renderer/Renderer2D.h"
+#include "renderer/TextureLoader.h"
 
 
 namespace gui {
 
+	Button::Button() {
+		m_visible = true;
+		m_color = app::Color(rand() % 255, rand() % 255, rand() % 255);
+	}
 
-	void Button::Draw() const {
-		app::Renderer2D::DrawImage(0, m_bounds.position, m_bounds.size);
+	bool Button::Clicked() {
+		return true;
 	}
 }

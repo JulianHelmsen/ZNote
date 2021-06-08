@@ -18,6 +18,10 @@ namespace app {
 		virtual void OnUpdate() override;
 	private:
 
+
+		void OnResize(uint32_t newWidth, uint32_t newHeight);
 		gui::GuiComponent* m_root;
+		glm::mat4 m_projectionMatrix;
+		glm::mat4 m_inverseProjectionMatrix;
 	};
 }

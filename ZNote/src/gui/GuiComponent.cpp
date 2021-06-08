@@ -48,10 +48,6 @@ namespace gui {
 		
 	}
 
-	void GuiComponent::Revalidate() {
-		for (GuiComponent* child : m_children)
-			child->Revalidate();
-	}
 
 	void GuiComponent::DrawAndRevalidate() {
 		if (!m_valid)

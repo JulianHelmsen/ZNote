@@ -35,7 +35,7 @@ namespace gui {
 		bool IsOverGui(const glm::vec2& position) const;
 
 		void Invalidate() { m_valid = false; }
-		virtual void Revalidate();
+		virtual void Revalidate() {}
 		bool IsValid() { return m_valid; }
 
 		void SetBounds(float left, float bottom, float width, float height);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/Layer.h"
-#include "gui/GuiComponent.h"
+#include "gui/gui.h"
 
 namespace app {
 
@@ -16,11 +16,17 @@ namespace app {
 		virtual void OnDetach() override;
 
 		virtual void OnUpdate() override;
+
+
+		void CollapseOrExpandColorSelection();
+
 	private:
+
 
 
 		void OnResize(uint32_t newWidth, uint32_t newHeight);
 		gui::GuiComponent* m_root;
+		gui::BoxLayout* m_colorList;
 		glm::mat4 m_projectionMatrix;
 		glm::mat4 m_inverseProjectionMatrix;
 

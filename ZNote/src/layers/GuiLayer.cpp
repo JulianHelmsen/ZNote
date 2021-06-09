@@ -1,4 +1,3 @@
-#include "gui/gui.h"
 #include "GuiLayer.h"
 #include <renderer/Renderer2D.h>
 #include "core/Window.h"
@@ -29,8 +28,8 @@ namespace app {
 		toolList->SetPosition(0.0f, 0.0f);
 		toolList->SetSize(0.1f, 0.4f);
 
-		gui::BoxLayout* colorList = new gui::BoxLayout(gui::BoxLayout::Direction::X_AXIS);
-		colorList->SetSize(0.1f, 0.1f);
+		m_colorList = new gui::BoxLayout(gui::BoxLayout::Direction::X_AXIS);
+		m_colorList->SetSize(0.1f, 0.1f);
 		
 
 		
@@ -46,7 +45,7 @@ namespace app {
 
 		gui::Button* colorSelectionButton = new gui::Button;
 		colorSelectionButton->SetSize(0.1f, 0.1f);
-		colorList->AddChild(colorSelectionButton);
+		m_colorList->AddChild(colorSelectionButton);
 
 		
 		m_bucketTextureId = utils::TextureLoader::LoadTexture(s_bucketImage, 32, 32, 4);
@@ -57,17 +56,8 @@ namespace app {
 
 		colorSelectionButton->SetTexture(m_colorButtonTextureId);
 
-		colorSelectionButton->SetClickCallback([colorList]() -> void {
-			colorList->ForEachChild([](uint32_t idx, gui::GuiComponent* child)-> void {
-				static bool currentlyVisible = false;
-
-				if (idx == 1)
-					currentlyVisible = child->ShouldBeRendered();
-
-				if (idx > 0)
-					child->SetShouldBeRendered(!currentlyVisible);
-
-			});
+		colorSelectionButton->SetClickCallback([this]() -> void {
+			this->CollapseOrExpandColorSelection();
 		});
 
 		for (uint32_t i = 0; i < Pencil::GetColorPalleteSize(); i++) {
@@ -78,22 +68,23 @@ namespace app {
 			colorButton->SetTexture(m_bucketTextureId);
 			colorButton->SetShouldBeRendered(false);
 			
-			colorButton->SetClickCallback([i]() -> void {
+			colorButton->SetClickCallback([i, this]() -> void {
 				Pencil::SetSelectedColorIndex(i);
+				this->CollapseOrExpandColorSelection();
 			});
 
 			colorButton->SetSize(0.1f, 0.1f);
 			colorButton->SetColor(color);
-			colorList->AddChild(colorButton);
+			m_colorList->AddChild(colorButton);
 		}
 
-		colorList->Revalidate();
+		m_colorList->Revalidate();
 
 
 		toolList->AddChild(transformButton);
 		toolList->AddChild(eraseButton);
 		toolList->AddChild(paintButton);
-		toolList->AddChild(colorList);
+		toolList->AddChild(m_colorList);
 
 
 		transformButton->SetTexture(m_transformTextureId);
@@ -111,6 +102,19 @@ namespace app {
 		m_root->Revalidate();
 	}
 
+	void GuiLayer::CollapseOrExpandColorSelection() {
+		m_colorList->ForEachChild([](uint32_t idx, gui::GuiComponent* child)-> void {
+			static bool currentlyVisible = false;
+
+			if (idx == 1)
+				currentlyVisible = child->ShouldBeRendered();
+
+			if (idx > 0)
+				child->SetShouldBeRendered(!currentlyVisible);
+
+		});
+
+	}
 	void GuiLayer::OnEvent(Event& event) {
 		if (event.IsOfType<MousePressed>()) {
 			// check whether the mouse was pressed over a button

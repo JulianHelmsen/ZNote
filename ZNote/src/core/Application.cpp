@@ -100,9 +100,9 @@ namespace app {
 		while (!IsLayerStackEmpty())
 			PopLayer();
 
-		Window::Destroy();
 		if (Tool::ActiveTool())
 			delete Tool::ActiveTool();
+		Window::Destroy();
 	}
 
 

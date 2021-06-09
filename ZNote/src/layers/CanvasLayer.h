@@ -21,7 +21,9 @@ namespace app {
 
 	private:
 
-		void OnDrag(const MouseDragged& event);
+		MouseButton m_pressedButton = MouseButton::NONE;
+
+		void OnDrag(const MouseButton& button, const MouseMoved& moved);
 		void OnScroll(const MouseScrolled& event);
 		void OnKeyPress(const KeyPressed& event);
 		void OnButtonStateChanged(Event& event);

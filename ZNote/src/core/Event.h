@@ -56,14 +56,6 @@ namespace app {
 	};
 
 
-	struct MouseDragged {
-		MouseButton button;
-		uint32_t startX;
-		uint32_t startY;
-		uint32_t endX;
-		uint32_t endY;
-	};
-
 	struct MouseMoved {
 		uint32_t oldX;
 		uint32_t oldY;

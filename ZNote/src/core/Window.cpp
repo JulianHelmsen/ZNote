@@ -13,28 +13,7 @@ static uint32_t mouseX = 0xFFFFFFFF, mouseY = 0xFFFFFFFF;
 
 std::function<void(app::Event&)> s_eventCallback;
 
-void Window::OnMouseDragged(MouseButton button, uint32_t x, uint32_t y, uint32_t nx, uint32_t ny) {
 
-	
-	int w, h;
-	glfwGetWindowSize(s_window, &w, &h);
-	uint32_t width = (uint32_t)w;
-	uint32_t height = (uint32_t)h;
-
-	app::Event event;
-	app::MouseDragged data;
-
-	data.button = button;
-	data.startX = x;
-	data.startY = y;
-	data.endX = nx;
-	data.endY = ny;
-	event.Set(data);
-
-	// bounds checking
-	if (data.startX < width && data.startY < height && data.endX < width && data.endY < height && s_eventCallback)
-		s_eventCallback(event);
-}
 
 void Window::SetEventCallback(std::function<void(app::Event&)> eventCallback) {
 	s_eventCallback = eventCallback;
@@ -102,23 +81,18 @@ void Window::Create() {
 
 		bool moved = newMousePosX != mouseX || newMousePosY != mouseY;
 
-		if(moved)
-			if ((uint32_t)mousePressed != 0xFFFFFFFF) {
-				// mouse dragged somewhere else
-				Window::OnMouseDragged(mousePressed, mouseX, mouseY, newMousePosX, newMousePosY);
-			}else {
-				app::Event event;
-				app::MouseMoved moved;
-				moved.oldX = mouseX;
-				moved.oldY = mouseY;
-				moved.newX = newMousePosX;
-				moved.newY = newMousePosY;
-				event.Set(moved);
+		if(moved) {
+			app::Event event;
+			app::MouseMoved moved;
+			moved.oldX = mouseX;
+			moved.oldY = mouseY;
+			moved.newX = newMousePosX;
+			moved.newY = newMousePosY;
+			event.Set(moved);
 
-				if(s_eventCallback)
-					s_eventCallback(event);
-
-			}
+			if(s_eventCallback)
+				s_eventCallback(event);
+		}
 
 		mouseX = newMousePosX;
 		mouseY = newMousePosY;

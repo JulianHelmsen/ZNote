@@ -4,7 +4,8 @@
 enum class MouseButton : uint32_t {
 	WHEEL = 2,
 	LEFT = 0,
-	RIGHT = 1
+	RIGHT = 1,
+	NONE = 3
 };
 
 #define KEY_MOD_CONTROL (0x0002)

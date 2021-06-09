@@ -38,10 +38,7 @@ namespace app {
 	}
 
 	void CanvasLayer::OnEvent(Event& event) {
-		if (event.IsOfType<MouseDragged>()) {
-			OnDrag(event.Get<MouseDragged>());
-			event.Handled();
-		}else if (event.IsOfType<KeyPressed>()) {
+		if (event.IsOfType<KeyPressed>()) {
 			KeyPressed& keyPressed = event.Get<KeyPressed>();
 			OnKeyPress(event.Get<KeyPressed>());
 			Tool::ActiveTool()->OnKeyPress(keyPressed.keycode);
@@ -61,6 +58,12 @@ namespace app {
 			image.size.x = (float) clipboardImage.width;
 			image.size.y = (float) clipboardImage.height;
 			AddImage(image);
+		}else if(event.IsOfType<MouseMoved>()) {
+			if (m_pressedButton != MouseButton::NONE) {
+				// dragged
+				OnDrag(m_pressedButton, event.Get<MouseMoved>());
+			}
+
 		}
 	}
 
@@ -83,20 +86,20 @@ namespace app {
 			scene.scaleMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(0.9f));
 	}
 
-	void CanvasLayer::OnDrag(const MouseDragged& event) {
+	void CanvasLayer::OnDrag(const MouseButton& button, const MouseMoved& moved) {
 		const glm::mat4& viewProjectionMatrix = Application::GetViewProjectionMatrix();
 		Scene& scene = Application::GetActiveScene();
 
 		glm::mat4 inverse = glm::inverse(viewProjectionMatrix);
-		glm::vec2 normalizedOld = inverse * glm::vec4(Window::NormalizeScreenCoordinates(event.startX, event.startY), 0.0f, 1.0f);
-		glm::vec2 normalized = inverse * glm::vec4(Window::NormalizeScreenCoordinates(event.endX, event.endY), 0.0f, 1.0f);
+		glm::vec2 normalizedOld = inverse * glm::vec4(Window::NormalizeScreenCoordinates(moved.oldX, moved.oldY), 0.0f, 1.0f);
+		glm::vec2 normalized = inverse * glm::vec4(Window::NormalizeScreenCoordinates(moved.newX, moved.newY), 0.0f, 1.0f);
 
-		if (event.button == MouseButton::RIGHT) {
+		if (button == MouseButton::RIGHT) {
 			// move camera
 			scene.translationMatrix[3][0] -= normalizedOld.x - normalized.x;
 			scene.translationMatrix[3][1] -= normalizedOld.y - normalized.y;
-		}else if (Tool::ActiveTool() && event.button == MouseButton::LEFT) {
-			Tool::ActiveTool()->OnDrag(event.button, normalizedOld, normalized);
+		}else if (Tool::ActiveTool() && button == MouseButton::LEFT) {
+			Tool::ActiveTool()->OnDrag(button, normalizedOld, normalized);
 		}
 	}
 
@@ -136,6 +139,7 @@ namespace app {
 			x = e.mouseX;
 			y = e.mouseY;
 			button = e.button;
+			m_pressedButton = e.button;
 		}
 		else {
 			isdown = false;
@@ -143,6 +147,7 @@ namespace app {
 			x = e.mouseX;
 			y = e.mouseY;
 			button = e.button;
+			m_pressedButton = MouseButton::NONE;
 		}
 
 		glm::mat4 inverse = glm::inverse(viewProjectionMatrix);

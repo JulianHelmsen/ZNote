@@ -76,6 +76,7 @@ namespace app {
 
 			gui::Button* colorButton = new gui::Button();
 			colorButton->SetTexture(m_bucketTextureId);
+			colorButton->SetShouldBeRendered(false);
 			
 			colorButton->SetClickCallback([i]() -> void {
 				Pencil::SetSelectedColorIndex(i);
@@ -125,9 +126,7 @@ namespace app {
 			MouseReleased& released = event.Get<MouseReleased>();
 			glm::vec2 normalizedMousePos = m_inverseProjectionMatrix * glm::vec4(Window::NormalizeScreenCoordinates(released.mouseX, released.mouseY), 0.0f, 1.0f);
 
-			bool guiHit = m_root->IsOverGui(normalizedMousePos);
-			if (guiHit)
-				event.Handled();
+			m_root->IsOverGui(normalizedMousePos);
 		}else if (event.IsOfType<WindowResized>()) {
 			const WindowResized& resized = event.Get<WindowResized>();
 			OnResize(resized.newWidth, resized.newHeight);
@@ -136,10 +135,7 @@ namespace app {
 			// check for hovered
 			MouseMoved& moved = event.Get<MouseMoved>();
 			glm::vec2 normalizedMousePos = m_inverseProjectionMatrix * glm::vec4(Window::NormalizeScreenCoordinates(moved.newX, moved.newY), 0.0f, 1.0f);
-			if (m_root->OnMouseMoved(normalizedMousePos))
-				event.Handled();
-			
-
+			m_root->OnMouseMoved(normalizedMousePos);
 		}
 	}
 

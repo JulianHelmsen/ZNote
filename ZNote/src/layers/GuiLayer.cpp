@@ -46,12 +46,17 @@ namespace app {
 		// elements to tool list are added bottom to top
 
 		gui::Button* colorSelectionButton = new gui::Button;
-		colorSelectionButton->SetColor({ 255, 255, 0 });
 		colorSelectionButton->SetSize(0.1f, 0.1f);
 		colorList->AddChild(colorSelectionButton);
 
 		
 		m_bucketTextureId = utils::TextureLoader::LoadTexture(s_bucketImage, 32, 32, 4);
+		m_transformTextureId = utils::TextureLoader::LoadTexture(s_transformToolImage, 32, 32, 4);
+		m_eraserTextureId = utils::TextureLoader::LoadTexture(s_eraserToolImage, 32, 32, 4);
+		m_pencilTextureId = utils::TextureLoader::LoadTexture(s_pencilToolImage, 32, 32, 4);
+		m_colorButtonTextureId = utils::TextureLoader::LoadTexture(s_colorButton, 32, 32, 4);
+
+		colorSelectionButton->SetTexture(m_colorButtonTextureId);
 
 		colorSelectionButton->SetClickCallback([colorList]() -> void {
 			colorList->ForEachChild([](uint32_t idx, gui::GuiComponent* child)-> void {
@@ -89,6 +94,11 @@ namespace app {
 		toolList->AddChild(eraseButton);
 		toolList->AddChild(paintButton);
 		toolList->AddChild(colorList);
+
+
+		transformButton->SetTexture(m_transformTextureId);
+		eraseButton->SetTexture(m_eraserTextureId);
+		paintButton->SetTexture(m_pencilTextureId);
 
 		transformButton->SetClickCallback([]() -> void {
 			Tool::UseTool(new TransformTool);
@@ -139,6 +149,10 @@ namespace app {
 	void GuiLayer::OnDetach() {
 		delete m_root;
 		glDeleteTextures(1, &m_bucketTextureId);
+		glDeleteTextures(1, &m_transformTextureId);
+		glDeleteTextures(1, &m_eraserTextureId);
+		glDeleteTextures(1, &m_pencilTextureId);
+		glDeleteTextures(1, &m_colorButtonTextureId);
 	}
 
 	void GuiLayer::OnUpdate() {

@@ -28,5 +28,6 @@ namespace app {
 		uint32_t m_pencilTextureId;
 		uint32_t m_eraserTextureId;
 		uint32_t m_transformTextureId;
+		uint32_t m_colorButtonTextureId;
 	};
 }

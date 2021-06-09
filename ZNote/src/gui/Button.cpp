@@ -7,9 +7,9 @@
 
 namespace gui {
 
-	Button::Button() {
+	Button::Button()  {
 		m_toRender = true;
-		m_color = app::Color(rand() % 255, rand() % 255, rand() % 255);
+		m_color = app::Color{ 255, 255, 255 };
 	}
 
 	bool Button::Clicked() {

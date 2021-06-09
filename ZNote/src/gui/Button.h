@@ -15,9 +15,12 @@ namespace gui {
 		bool Clicked() override;
 
 		void SetClickCallback(Callback callback) { m_clickCallback = callback; }
+		bool Hovered(bool isHovered) override;
+		void SetColor(app::Color color) override;
 		
 	private:
 		Callback m_clickCallback;
+		app::Color m_hoverColor, m_notHoveredColor;
 		
 	};
 }

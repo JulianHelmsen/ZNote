@@ -10,7 +10,6 @@
 #include "GuiLayerImages.h"
 #include <GL/glew.h>
 
-#define GUI_DEBUG 0
 
 namespace app {
 
@@ -132,6 +131,15 @@ namespace app {
 		}else if (event.IsOfType<WindowResized>()) {
 			const WindowResized& resized = event.Get<WindowResized>();
 			OnResize(resized.newWidth, resized.newHeight);
+		}
+		else if (event.IsOfType<MouseMoved>()) {
+			// check for hovered
+			MouseMoved& moved = event.Get<MouseMoved>();
+			glm::vec2 normalizedMousePos = m_inverseProjectionMatrix * glm::vec4(Window::NormalizeScreenCoordinates(moved.newX, moved.newY), 0.0f, 1.0f);
+			if (m_root->OnMouseMoved(normalizedMousePos))
+				event.Handled();
+			
+
 		}
 	}
 

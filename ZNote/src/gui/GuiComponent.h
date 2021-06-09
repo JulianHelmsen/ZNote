@@ -32,6 +32,7 @@ namespace gui {
 		* returns whether a gui component has consumed this event
 		*/
 		virtual bool Clicked() { return false; }
+		virtual bool Hovered(bool hovered) { return false; }
 
 		/*
 		* Checks for bounding box and calls Clicked if position is inside bounding box
@@ -39,6 +40,7 @@ namespace gui {
 		*/
 		bool CheckForMouseClick(const glm::vec2& position);
 		bool IsOverGui(const glm::vec2& position) const;
+		bool OnMouseMoved(const glm::vec2& position);
 
 		void Invalidate() { m_valid = false; }
 		virtual void Revalidate() {}
@@ -57,7 +59,7 @@ namespace gui {
 		bool ShouldBeRendered() { return m_toRender; }
 		void SetShouldBeRendered(bool visible);
 		void AddChild(GuiComponent* child);
-		void SetColor(app::Color color) { m_color = color; }
+		virtual void SetColor(app::Color color) { m_color = color; }
 
 		uint32_t GetChildCount() const { return (uint32_t) m_children.size(); }
 		void ForEachChild(ForEachChildFunction func);

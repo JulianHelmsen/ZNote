@@ -17,6 +17,22 @@ namespace gui {
 		Invalidate();
 	}
 
+	bool GuiComponent::OnMouseMoved(const glm::vec2& position) {
+		bool contains = BoundingBoxContains(position);
+		
+		// children before parent
+		bool isAnyChildHovered = false;
+		for (GuiComponent* child : m_children) {
+			if (child->OnMouseMoved(position))
+				isAnyChildHovered |= true;
+		}
+
+		if (m_toRender && contains)
+			return Hovered(true);
+		
+		Hovered(contains);
+		return isAnyChildHovered;
+	}
 
 	bool GuiComponent::IsOverGui(const glm::vec2& position) const {
 		if (m_toRender)

@@ -100,10 +100,25 @@ void Window::Create() {
 		uint32_t newMousePosX = (uint32_t)x;
 		uint32_t newMousePosY = (uint32_t)y;
 
-		if ((uint32_t)mousePressed != 0xFFFFFFFF && (newMousePosX != mouseX || newMousePosY != mouseY)) {
-			// mouse dragged somewhere else
-			Window::OnMouseDragged(mousePressed, mouseX, mouseY, newMousePosX, newMousePosY);
-		}
+		bool moved = newMousePosX != mouseX || newMousePosY != mouseY;
+
+		if(moved)
+			if ((uint32_t)mousePressed != 0xFFFFFFFF) {
+				// mouse dragged somewhere else
+				Window::OnMouseDragged(mousePressed, mouseX, mouseY, newMousePosX, newMousePosY);
+			}else {
+				app::Event event;
+				app::MouseMoved moved;
+				moved.oldX = mouseX;
+				moved.oldY = mouseY;
+				moved.newX = newMousePosX;
+				moved.newY = newMousePosY;
+				event.Set(moved);
+
+				if(s_eventCallback)
+					s_eventCallback(event);
+
+			}
 
 		mouseX = newMousePosX;
 		mouseY = newMousePosY;

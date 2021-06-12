@@ -24,7 +24,15 @@ namespace app {
 		
 		gui::BoxLayout* toolList = new gui::BoxLayout(gui::BoxLayout::Direction::Y_AXIS);
 		toolList->SetAlignment(gui::BoxLayout::Alignment::EDGE);
+		
+		m_extendButton = new gui::Button();
+		m_extendButton->SetSize(0.01f, 0.1f);
+		
+		
 		m_root->AddChild(toolList);
+		m_root->AddChild(m_extendButton);
+
+
 		toolList->SetPosition(0.0f, 0.0f);
 		toolList->SetSize(0.1f, 0.4f);
 
@@ -86,6 +94,8 @@ namespace app {
 		toolList->AddChild(paintButton);
 		toolList->AddChild(m_colorList);
 
+		toolList->SetShouldBeRendered(true);
+
 
 		transformButton->SetTexture(m_transformTextureId);
 		eraseButton->SetTexture(m_eraserTextureId);
@@ -97,22 +107,28 @@ namespace app {
 		eraseButton->SetClickCallback([]() -> void {Tool::UseTool(new Eraser); });
 		paintButton->SetClickCallback([]() -> void {Tool::UseTool(new Pencil); });
 
+
 		toolList->Revalidate();
 
 		m_root->Revalidate();
 	}
 
 	void GuiLayer::CollapseOrExpandColorSelection() {
-		m_colorList->ForEachChild([](uint32_t idx, gui::GuiComponent* child)-> void {
-			static bool currentlyVisible = false;
-
-			if (idx == 1)
-				currentlyVisible = child->ShouldBeRendered();
+		bool nowVisible;
+		m_colorList->ForEachChild([&nowVisible](uint32_t idx, gui::GuiComponent* child)-> void {
+			bool visible = child->ShouldBeRendered();
+			if (idx == 1) {
+				nowVisible = !visible;
+			}
+				
+				
 
 			if (idx > 0)
-				child->SetShouldBeRendered(!currentlyVisible);
-
+				child->SetShouldBeRendered(nowVisible);
 		});
+
+		m_extendButton->SetShouldBeRendered(!nowVisible);
+	
 
 	}
 	void GuiLayer::OnEvent(Event& event) {

@@ -41,8 +41,6 @@ namespace app {
 
 
 
-
-
 	void Application::OnEvent(app::Event& event) {
 
 		// last drawn layer is first to receive events

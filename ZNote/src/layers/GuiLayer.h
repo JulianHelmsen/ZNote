@@ -27,6 +27,7 @@ namespace app {
 		void OnResize(uint32_t newWidth, uint32_t newHeight);
 		gui::GuiComponent* m_root;
 		gui::BoxLayout* m_colorList;
+		gui::Button* m_extendButton;
 		glm::mat4 m_projectionMatrix;
 		glm::mat4 m_inverseProjectionMatrix;
 

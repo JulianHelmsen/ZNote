@@ -52,14 +52,15 @@ namespace gui {
 			child->Invalidate();
 		}
 
-		glm::vec2 newSize;
-		if (m_direction == Direction::X_AXIS) {
-			newSize.x = xOffset - GetX(), m_bounds.size.x;
-			newSize.y = fmax(newHeight, m_bounds.size.y);
-		}else {
-			newSize.x = fmax(newWidth, m_bounds.size.x);
-			newSize.y = yOffset - GetY();
-		}
+		glm::vec2 newSize = m_bounds.size;
+		if(!m_fixedSize)
+			if (m_direction == Direction::X_AXIS) {
+				newSize.x = xOffset - GetX();
+				newSize.y = newHeight;
+			}else {
+				newSize.x = newWidth;
+				newSize.y = yOffset - GetY();
+			}
 
 		// careful: floating point comparision
 		if (newSize != m_bounds.size) {

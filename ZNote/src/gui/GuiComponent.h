@@ -50,6 +50,7 @@ namespace gui {
 		void SetBounds(float left, float bottom, float width, float height);
 		void SetSize(float width, float height);
 		void SetPosition(float x, float y);
+		
 
 		inline float GetWidth() const { return m_bounds.size.x; }
 		inline float GetHeight() const { return m_bounds.size.y; }
@@ -57,6 +58,7 @@ namespace gui {
 		inline float GetY() const { return m_bounds.position.y; }
 		
 		bool IsVisible() const;
+		void SetFixedSize(bool fixedSize) { m_fixedSize = fixedSize; }
 		bool ShouldBeRendered() { return m_toRender; }
 		void SetShouldBeRendered(bool visible);
 		void AddChild(GuiComponent* child);
@@ -75,6 +77,7 @@ namespace gui {
 		GuiComponent* m_parent = NULL;
 		std::vector<GuiComponent*> m_children;
 		bool m_drawable = false;
+		bool m_fixedSize = false;
 
 		BoundingBox m_bounds;
 	private:

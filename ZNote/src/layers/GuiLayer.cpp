@@ -21,12 +21,13 @@ namespace app {
 		OnResize(Window::GetWidth(), Window::GetHeight());
 		((gui::BoxLayout*)m_root)->SetAlignment(gui::BoxLayout::Alignment::CENTER);
 		
+		m_root->SetFixedSize(true);
 		
 		gui::BoxLayout* toolList = new gui::BoxLayout(gui::BoxLayout::Direction::Y_AXIS);
 		toolList->SetAlignment(gui::BoxLayout::Alignment::EDGE);
 		
 		m_extendButton = new gui::Button();
-		m_extendButton->SetSize(0.01f, 0.1f);
+		m_extendButton->SetSize(0.01f, 0.05f);
 		
 		
 		m_root->AddChild(toolList);
@@ -93,8 +94,6 @@ namespace app {
 		toolList->AddChild(eraseButton);
 		toolList->AddChild(paintButton);
 		toolList->AddChild(m_colorList);
-
-		toolList->SetShouldBeRendered(true);
 
 
 		transformButton->SetTexture(m_transformTextureId);

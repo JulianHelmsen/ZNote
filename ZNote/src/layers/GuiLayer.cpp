@@ -198,7 +198,7 @@ namespace app {
 		float height = 1.0f;
 		float width = aspectRatio * height;
 
-		m_root->SetBounds(0.0f, 0.0f, width, height);
+		m_root->SetSize(width, height);
 		m_projectionMatrix = glm::ortho(0.0f, width, 0.0f, height);
 		m_inverseProjectionMatrix = glm::inverse(m_projectionMatrix);
 	}

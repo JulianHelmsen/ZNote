@@ -65,9 +65,7 @@ namespace app {
 
 		colorSelectionButton->SetTexture(m_colorButtonTextureId);
 
-		colorSelectionButton->SetClickCallback([this]() -> void {
-			this->CollapseOrExpandColorSelection();
-		});
+		colorSelectionButton->SetClickCallback(std::bind(&GuiLayer::CollapseOrExpandColorSelection, this));
 
 		for (uint32_t i = 0; i < Pencil::GetColorPalleteSize(); i++) {
 			app::Color color = Pencil::GetColorPallete()[i];

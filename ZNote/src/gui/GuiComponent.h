@@ -43,7 +43,8 @@ namespace gui {
 		bool OnMouseMoved(const glm::vec2& position);
 
 		void Invalidate() { m_valid = false; }
-		virtual void Revalidate() {}
+		void Revalidate();
+		virtual void OnRevalidate() {}
 		bool IsValid() { return m_valid; }
 
 		void SetBounds(float left, float bottom, float width, float height);

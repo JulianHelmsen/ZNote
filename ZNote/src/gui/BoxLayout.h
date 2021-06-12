@@ -18,7 +18,7 @@ namespace gui {
 		BoxLayout(Direction direction) : m_direction(direction) { }
 
 		void SetAlignment(Alignment alignment) { m_alignment = alignment; }
-		void Revalidate() override;
+		void OnRevalidate() override;
 
 	private:
 		Direction m_direction;

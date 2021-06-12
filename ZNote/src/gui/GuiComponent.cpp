@@ -64,6 +64,16 @@ namespace gui {
 		
 	}
 
+	void GuiComponent::Revalidate() {
+		// revalidate children
+		for (GuiComponent* child : m_children)
+			child->Revalidate();
+
+		// revalidate self
+		OnRevalidate();
+		m_valid = true;
+	}
+
 	bool GuiComponent::IsVisible() const {
 		if (m_toRender)
 			return true;

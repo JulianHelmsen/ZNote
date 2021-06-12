@@ -4,7 +4,7 @@
 namespace gui {
 
 
-	void BoxLayout::Revalidate() {
+	void BoxLayout::OnRevalidate() {
 		float xOffset = GetX();
 		float yOffset = GetY();
 

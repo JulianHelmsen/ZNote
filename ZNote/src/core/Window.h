@@ -27,6 +27,7 @@ public:
 	static void SetEventCallback(std::function<void(app::Event&)> eventCallback);
 
 	static glm::vec2 NormalizeScreenCoordinates(uint32_t x, uint32_t y);
+	static void PostEmptyEvent();
 
 	
 private:

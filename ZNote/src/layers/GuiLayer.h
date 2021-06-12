@@ -23,10 +23,14 @@ namespace app {
 	private:
 
 
-
+		void OnExtendButtonClicked();
 		void OnResize(uint32_t newWidth, uint32_t newHeight);
+
+		bool m_extended = true;
+
 		gui::GuiComponent* m_root;
 		gui::BoxLayout* m_colorList;
+		gui::BoxLayout* m_toolList;
 		gui::Button* m_extendButton;
 		glm::mat4 m_projectionMatrix;
 		glm::mat4 m_inverseProjectionMatrix;

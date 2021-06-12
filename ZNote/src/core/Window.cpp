@@ -177,3 +177,8 @@ glm::vec2 Window::NormalizeScreenCoordinates(uint32_t x, uint32_t y) {
 	pos.y = -pos.y;
 	return pos;
 }
+
+
+void Window::PostEmptyEvent() {
+	glfwPostEmptyEvent();
+}

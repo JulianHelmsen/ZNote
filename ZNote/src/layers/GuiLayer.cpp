@@ -8,6 +8,7 @@
 #include <tools/Eraser.h>
 #include "GuiLayerImages.h"
 #include <GL/glew.h>
+#include "gui/Animation.h"
 
 
 namespace app {
@@ -20,22 +21,23 @@ namespace app {
 		m_root = new gui::BoxLayout(gui::BoxLayout::Direction::X_AXIS);
 		OnResize(Window::GetWidth(), Window::GetHeight());
 		((gui::BoxLayout*)m_root)->SetAlignment(gui::BoxLayout::Alignment::CENTER);
-		
+
 		m_root->SetFixedSize(true);
 		
-		gui::BoxLayout* toolList = new gui::BoxLayout(gui::BoxLayout::Direction::Y_AXIS);
-		toolList->SetAlignment(gui::BoxLayout::Alignment::EDGE);
+		m_toolList = new gui::BoxLayout(gui::BoxLayout::Direction::Y_AXIS);
+		m_toolList->SetAlignment(gui::BoxLayout::Alignment::EDGE);
 		
 		m_extendButton = new gui::Button();
 		m_extendButton->SetSize(0.01f, 0.05f);
+		m_extendButton->SetClickCallback(std::bind(&GuiLayer::OnExtendButtonClicked, this));
 		
 		
-		m_root->AddChild(toolList);
+		m_root->AddChild(m_toolList);
 		m_root->AddChild(m_extendButton);
 
 
-		toolList->SetPosition(0.0f, 0.0f);
-		toolList->SetSize(0.1f, 0.4f);
+		m_toolList->SetPosition(0.0f, 0.0f);
+		m_toolList->SetSize(0.1f, 0.4f);
 
 		m_colorList = new gui::BoxLayout(gui::BoxLayout::Direction::X_AXIS);
 		m_colorList->SetSize(0.1f, 0.1f);
@@ -88,10 +90,10 @@ namespace app {
 		m_colorList->Revalidate();
 
 
-		toolList->AddChild(transformButton);
-		toolList->AddChild(eraseButton);
-		toolList->AddChild(paintButton);
-		toolList->AddChild(m_colorList);
+		m_toolList->AddChild(transformButton);
+		m_toolList->AddChild(eraseButton);
+		m_toolList->AddChild(paintButton);
+		m_toolList->AddChild(m_colorList);
 
 
 		transformButton->SetTexture(m_transformTextureId);
@@ -105,7 +107,7 @@ namespace app {
 		paintButton->SetClickCallback([]() -> void {Tool::UseTool(new Pencil); });
 
 
-		toolList->Revalidate();
+		m_toolList->Revalidate();
 
 		m_root->Revalidate();
 	}
@@ -128,6 +130,40 @@ namespace app {
 	
 
 	}
+
+	void GuiLayer::OnExtendButtonClicked() {
+		// if this is clicked the color pallete is always collapsed
+
+		bool toExtend = !m_extended;
+		m_extended = toExtend;
+		// destructor of animation should call: delete this;
+
+		gui::Animation* animation = gui::Animation::Create(0.15f);// second
+		animation->EnableAutoDeletion();
+		
+		gui::GuiComponent* comp = m_root;
+		
+
+		animation->OnUpdate([comp, toExtend](const gui::Animation::AnimationState& state) -> void {
+			// move gui to the right to hide the tool list
+			constexpr float toolListWidth = 0.1f;
+			float posX;
+			if (toExtend) {
+				posX = -toolListWidth + state.progress * toolListWidth;
+			}else {
+				posX = -state.progress * toolListWidth;
+			}
+
+			
+			comp->SetPosition(posX, 0.0f);
+			comp->Invalidate();
+			Window::PostEmptyEvent();// empty event for redrawing the window
+		});
+
+		animation->Start();
+
+	}
+
 	void GuiLayer::OnEvent(Event& event) {
 		if (event.IsOfType<MousePressed>()) {
 			// check whether the mouse was pressed over a button

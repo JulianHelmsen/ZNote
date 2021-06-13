@@ -87,8 +87,7 @@ namespace app {
 			m_colorList->AddChild(colorButton);
 		}
 
-		m_colorList->Revalidate();
-
+		
 
 		m_toolList->AddChild(transformButton);
 		m_toolList->AddChild(eraseButton);
@@ -107,7 +106,6 @@ namespace app {
 		paintButton->SetClickCallback([]() -> void {Tool::UseTool(new Pencil); });
 
 
-		m_toolList->Revalidate();
 
 		m_extended = false;
 		m_root->SetPosition(-0.1f, 0.0f);

@@ -3,13 +3,10 @@
 #include "renderer/RenderDefaults.h"
 #include "os/Utils.h"
 #include "Keycodes.h"
+#include "tools/Pencil.h"
 #include "serialization/SceneSerializer.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include "tools/Pencil.h"
-#include "tools/Eraser.h"
-#include "tools/TransformTool.h"
 #include "renderer/Renderer2D.h"
-#include "renderer/TextureLoader.h"
 #include "layers/CanvasLayer.h"
 #include "layers/GuiLayer.h"
 

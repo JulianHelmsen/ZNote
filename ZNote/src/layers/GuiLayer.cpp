@@ -109,7 +109,8 @@ namespace app {
 
 		m_toolList->Revalidate();
 
-		m_root->Revalidate();
+		m_extended = false;
+		m_root->SetPosition(-0.1f, 0.0f);
 	}
 
 	void GuiLayer::CollapseOrExpandColorSelection() {

@@ -9,6 +9,7 @@
 #include "renderer/Renderer2D.h"
 #include "layers/CanvasLayer.h"
 #include "layers/GuiLayer.h"
+#include "text/Font.h"
 
 namespace app {
 
@@ -26,6 +27,7 @@ namespace app {
 		glewInit();
 		renderer::SetRenderDefaults();
 		Renderer2D::Initialize();
+		Font::LoadFont(NULL);
 
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -85,10 +87,17 @@ namespace app {
 		for (Layer* layer : m_layers) {
 			layer->OnUpdate();
 		}
+
+		static float time = 0.0f;
+		time += 0.1f;
+		Renderer2D::Begin(glm::mat4(1.0f));
+		Renderer2D::DrawImage(Font::GetCurrentFont()->GetTextureId(), glm::vec2(-time, 0.0f), glm::vec2(50.0f, 1.0f));
+		Renderer2D::End();
 	}
 
 	
 	void Application::OnClose() {
+		Font::CleanUp();
 		Scene::CleanUp(m_scene);
 		Renderer2D::CleanUp();
 

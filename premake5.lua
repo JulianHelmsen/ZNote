@@ -23,7 +23,8 @@ project "ZNote"
 		"external libraries/stb",
 		"ZNote/src",
 		"external libraries/GLFW/include",
-		"external libraries/GLEW/include"
+		"external libraries/GLEW/include",
+		"external libraries/FreeType/include"
 	}
 
 	
@@ -35,7 +36,8 @@ project "ZNote"
 	links {
 		"glfw3.lib",
 		"Opengl32",
-		"glew32s"
+		"glew32s",
+		"freetype.lib"
 	}
 	defines {"GLEW_STATIC"}
 
@@ -51,12 +53,18 @@ project "ZNote"
 		defines {"DEBUG"}
 		symbols "On"
 		runtime "Debug"
+		libdirs {
+			"external libraries/FreeType/lib/DEBUG/"
+		}
 	
 	filter "configurations:RELEASE"
 		defines {"RELEASE", "NDEBUG"}
 		optimize "Speed"
 		runtime "Release"
 		floatingpoint "fast"
+		libdirs {
+			"external libraries/FreeType/lib/RELEASE/"
+		}
 		
 
 	

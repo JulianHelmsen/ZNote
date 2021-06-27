@@ -8,4 +8,10 @@ namespace os {
 		HWND consoleWindow = GetConsoleWindow();
 		BOOL hidden = ShowWindow(consoleWindow, SW_HIDE);
 	}
+
+
+	void ShowConsoleWindow() {
+		HWND consoleWindow = GetConsoleWindow();
+		BOOL shown = ShowWindow(consoleWindow, SW_SHOW);
+	}
 }

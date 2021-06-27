@@ -10,6 +10,7 @@ namespace os {
 	std::optional<std::string> ShowSaveDialog();
 
 	void HideConsoleWindow();
+	void ShowConsoleWindow();
 
 	
 }

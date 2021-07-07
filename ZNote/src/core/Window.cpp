@@ -2,6 +2,7 @@
 #include "Window.h"
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include "os/Clipboard.h"
 
 
 static GLFWwindow* s_window = NULL;
@@ -140,6 +141,19 @@ void Window::Create() {
 			
 		}
 
+	});
+
+	glfwSetDropCallback(s_window, [](GLFWwindow*, int count, const char** paths) -> void {
+		if (!s_eventCallback)
+			return;
+		app::Event event;
+		os::FilePasted pasted;
+
+		for (int i = 0; i < count; i++) {
+			pasted.file = paths[i];
+			event.Set(pasted);
+			s_eventCallback(event);
+		}
 	});
 
 	app::Event event;

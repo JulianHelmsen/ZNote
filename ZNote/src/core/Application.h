@@ -46,6 +46,7 @@ namespace app {
 		void OnResize(const WindowResized&);
 		void OnKeyPress(const KeyPressed& event);
 		void ClipboardImagePasted(const os::ClipboardImage& image);
+		void FilePasted(const os::FilePasted& paste);
 		bool IsLayerStackEmpty() const { return m_layers.size() > 0; }
 
 		void PushLayer(Layer* layer);

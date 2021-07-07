@@ -9,6 +9,7 @@
 #include "tools/Eraser.h"
 #include "tools/Pencil.h"
 #include "os/Clipboard.h"
+#include "os/FileUtils.h"
 
 
 namespace app {
@@ -63,7 +64,16 @@ namespace app {
 				// dragged
 				OnDrag(m_pressedButton, event.Get<MouseMoved>());
 			}
+		}else if (event.IsOfType<os::FilePasted>()) {
+			const os::FilePasted& pasted = event.Get<os::FilePasted>();
+			const char* path = pasted.file;
 
+			if (os::FileUtils::DoesFileExtensionMatch(path, ".png.jpg.jpeg")) {
+				Image image;
+				image.textureId = utils::TextureLoader::LoadTexture(path, &image.size);
+				image.filepath = path;
+				AddImage(image);
+			}
 		}
 	}
 

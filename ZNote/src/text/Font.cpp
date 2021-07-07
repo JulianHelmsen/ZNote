@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <GL/glew.h>
 
-#define FREETYPE_CALL(x) {FT_Error err = x; if(err) LOG("FreeType error in %s:%d. Reason[\"%s\"]", __FILE_NAME__, __LINE__, FT_Error_String(err));}
+#define FREETYPE_CALL(x) {FT_Error err = x; if(err) LOG("FreeType error in %s:%d. Reason[\"%s\"]", __FILE__, __LINE__, FT_Error_String(err));}
 
 
 namespace app {

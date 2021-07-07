@@ -13,6 +13,11 @@ namespace os {
 	};
 
 
+	struct FilePasted {
+		const char* file;
+	};
+
+
 	class Clipboard {
 	public:
 
@@ -24,6 +29,7 @@ namespace os {
 	private:
 
 		static void OnImageAvailable();
+		static void OnFileAvailable();
 	
 
 	};

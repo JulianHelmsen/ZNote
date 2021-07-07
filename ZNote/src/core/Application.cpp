@@ -22,6 +22,7 @@ namespace app {
 		s_app = this;
 		Window::SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 		os::Clipboard::SetDataCallback<os::ClipboardImage>(std::bind(&Application::ClipboardImagePasted, this, std::placeholders::_1));
+		os::Clipboard::SetDataCallback<os::FilePasted>(std::bind(&Application::FilePasted, this, std::placeholders::_1));
 
 		Window::Create();
 		glewInit();
@@ -121,7 +122,11 @@ namespace app {
 		OnEvent(event);
 	}
 
-
+	void Application::FilePasted(const os::FilePasted& paste) {
+		Event event;
+		event.Set(paste);
+		OnEvent(event);
+	}
 
 
 	void Application::Save() {

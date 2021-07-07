@@ -90,7 +90,7 @@ namespace app {
 		std::vector<uint32_t> lengths;
 		lengths.reserve(500);
 
-		for (uint32_t i = 1; i < indices.size() - 1; i += 2) {
+		for (int i = 1; i < (int) indices.size() - 1; i += 2) {
 			if (indices[i] == indices[i + 1]) {
 				currentLen++;
 			}else {

@@ -27,7 +27,7 @@ namespace app {
 		glewInit();
 		renderer::SetRenderDefaults();
 		Renderer2D::Initialize();
-		Font::LoadFont(NULL);
+		// Font::LoadFont(NULL);
 
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -88,13 +88,6 @@ namespace app {
 			layer->OnUpdate();
 		}
 
-#if 0
-		static float time = 0.0f;
-		time += 0.1f;
-		Renderer2D::Begin(glm::mat4(1.0f));
-		Renderer2D::DrawImage(Font::GetCurrentFont()->GetTextureId(), glm::vec2(-time, 0.0f), glm::vec2(50.0f, 1.0f));
-		Renderer2D::End();
-#endif
 	}
 
 	

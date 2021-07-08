@@ -35,7 +35,7 @@ namespace app {
 #ifdef WINDOWS
 			filepath = "C:/Windows/Fonts/arial.ttf";
 #else
-	#error "Platform not supported"
+#error "Platform not supported"
 #endif
 		}
 
@@ -66,7 +66,7 @@ namespace app {
 		for (int i = 0; i < 126; i++) {
 			Glyph* glyph = s_font->m_glyphs + i;
 
-			if (FT_Load_Char(face, i, FT_LOAD_NO_BITMAP)) {
+			if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
 				LOG("Character %c (dec code: %d) could not be loaded!\n", (char) i, i);
 				continue;
 			}
@@ -78,7 +78,8 @@ namespace app {
 			glyph->height = loadedGlyph->bitmap.rows;
 			glyph->bearingX = loadedGlyph->bitmap_left;
 			glyph->bearingY = loadedGlyph->bitmap_top;
-			glyph->advance = loadedGlyph->advance.x;
+			glyph->advance = (float) loadedGlyph->advance.x / 64.0f;
+			
 
 			// calculate the space in x dir the character needs
 			fontWidth += glyph->width;
@@ -92,9 +93,10 @@ namespace app {
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // 1 byte alignment
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, fontWidth, height, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
 
 		uint32_t xOffset = 0;
@@ -115,13 +117,17 @@ namespace app {
 			
 			
 			// calculate uv of bottom left corner
-			glyph->texStart = glm::vec2((float) xOffset / fontWidth, 0);
-			glyph->texSize = glm::vec2((float) bitmap.width / fontWidth);
+			glyph->texSize = glm::vec2((float)bitmap.width / fontWidth, (float) glyph->height / height);
+			glyph->texStart = glm::vec2((float) xOffset / fontWidth, 0.0f);
+			
 
 			xOffset += bitmap.width;
 		}
-		
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // back to default 4 byte alignment
 		FREETYPE_CALL(FT_Done_Face(face));
+
+		s_font->m_textureSize = glm::vec2{fontWidth, height};
 		return s_font;
 	}
 

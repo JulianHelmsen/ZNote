@@ -6,6 +6,7 @@
 #include <core/Logger.h>
 #include <string.h>
 #include "TextureLoader.h"
+#include "text/Font.h"
 
 #define MAX_TEXTURE_SLOTS (3)
 
@@ -35,6 +36,10 @@ static struct {
 	renderer::Batch<ImageVertex> imageBatch;
 	GlMesh imageMesh;
 	GlProgram imageProgram;
+
+	renderer::Batch<ImageVertex> characterBatch;
+	GlProgram textProgram;
+	GlMesh characterMesh;
 
 	glm::mat4 projectionMatrix;	
 
@@ -92,14 +97,32 @@ namespace app {
 		glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(ImageVertex), (const void*) (sizeof(glm::vec2) * 2));
 		glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(ImageVertex), (const void*)(sizeof(glm::vec2) * 2 + sizeof(uint32_t)));
 
+
+		InitializeEmptyMesh(renderData.characterMesh);
+		glEnableVertexAttribArray(0); // character position
+		glEnableVertexAttribArray(1); // character uv
+		glEnableVertexAttribArray(2); // character texture id
+		glEnableVertexAttribArray(3); // character taint
+
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ImageVertex), NULL);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ImageVertex), (const void*)sizeof(glm::vec2));
+		glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(ImageVertex), (const void*)(sizeof(glm::vec2) * 2));
+		glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(ImageVertex), (const void*)(sizeof(glm::vec2) * 2 + sizeof(uint32_t)));
+
+		renderData.textProgram.id = utils::CreateTextShaderProgram();
+		InitProgram(renderData.textProgram);
+
 		renderData.imageProgram.id = utils::CreateImageShaderProgram();
 		InitProgram(renderData.imageProgram);
+
 		uint32_t shaderSamplers[MAX_TEXTURE_SLOTS];
 		for (uint32_t i = 0; i < MAX_TEXTURE_SLOTS; i++) {
 			shaderSamplers[i] = i;
 		}
 		uint32_t samplerSlotLoc = glGetUniformLocation(renderData.imageProgram.id, "u_textures");
+		uint32_t samplerSlotTextProgramLoc = glGetUniformLocation(renderData.textProgram.id, "u_textures");
 		glUniform1iv(samplerSlotLoc, MAX_TEXTURE_SLOTS, (int*) shaderSamplers);
+		glUniform1iv(samplerSlotTextProgramLoc, MAX_TEXTURE_SLOTS, (int*)shaderSamplers);
 		
 		memset(renderData.textureSlots, 0xFF, sizeof(renderData.textureSlots));
 
@@ -220,7 +243,107 @@ namespace app {
 		glDrawElements(GL_LINES, (GLsizei)lineBatch.GetNumIndices(), GL_UNSIGNED_INT, NULL);
 	}
 
+
+	glm::vec2 Renderer2D::DrawCharacter(char character, glm::vec2& baseLinePosition, Color color) {
+		bool bind;
+		
+		Font* font = Font::GetCurrentFont();
+		const glm::vec2& textureAtlasSize = font->GetTextureSize();
+		uint32_t texId = font->GetTextureId();
+
+		uint32_t textureSlot = FindTextureSlot(texId, &bind);
+		if (textureSlot == 0xFFFFFFFF) {
+			FlushCharacterBatch();
+			textureSlot = FindTextureSlot(texId, &bind);
+		}
+		if (bind) {
+			glActiveTexture(GL_TEXTURE0 + textureSlot);
+			glBindTexture(GL_TEXTURE_2D, texId);
+		}
+
+		const Font::Glyph& glyph = Font::GetCurrentFont()->GetGlyph(character);
+
+		// calculate the size and position of the character
+		float maxCharHeight = font->GetFontSize();
+		float relativeCharHeight = (float) glyph.height / textureAtlasSize.y;
+		float aspectRatio = (float) glyph.width / glyph.height;
+
+		float height = relativeCharHeight * maxCharHeight;
+		float width = aspectRatio * height;
+		float scale = maxCharHeight / textureAtlasSize.y;
+
+		glm::vec2 size = glm::vec2{ width, height };
+		glm::vec2 bearing = scale * glm::vec2(glyph.bearingX, glyph.bearingY);
+
+		// topLeft = baseLinePos + bearing;
+		glm::vec2 position = baseLinePosition + bearing;
+		
+		renderer::SubMesh<ImageVertex> mesh;
+		ImageVertex imageVertex;
+		imageVertex.taint = color;
+
+		// top left
+		imageVertex.position = position;
+		imageVertex.uv = glyph.texStart;
+		imageVertex.textureId = textureSlot;
+		mesh.Vertex(imageVertex);
+
+		// top right
+		imageVertex.position.x += size.x;
+		imageVertex.uv = glyph.texStart + glm::vec2(glyph.texSize.x, 0.0f);
+		mesh.Vertex(imageVertex);
+
+		// bottom right
+		imageVertex.position.y -= size.y;
+		imageVertex.uv = glyph.texStart + glm::vec2(glyph.texSize.x, glyph.texSize.y);
+		mesh.Vertex(imageVertex);
+
+		// bottom left
+		imageVertex.position.x -= size.x;
+		imageVertex.uv = glyph.texStart + glm::vec2(0.0f, glyph.texSize.y);
+		mesh.Vertex(imageVertex);
+
+		mesh.Index(0);
+		mesh.Index(1);
+		mesh.Index(2);
+
+		mesh.Index(0);
+		mesh.Index(2);
+		mesh.Index(3);
+
+		renderData.characterBatch.Insert(mesh);
+
+		return baseLinePosition + glm::vec2(glyph.advance, 0.0f) * scale;
+	}
+
+
+	void Renderer2D::FlushCharacterBatch() {
+		// potential conflict between image and character batch when flushing
+
+		renderer::Batch<ImageVertex>& batch = renderData.characterBatch;
+		glUseProgram(renderData.textProgram.id);
+		// set uniform
+		glUniformMatrix4fv(renderData.textProgram.projectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(renderData.projectionMatrix));
+
+		glBindVertexArray(renderData.characterMesh.vao);
+		glBindBuffer(GL_ARRAY_BUFFER, renderData.characterMesh.vbo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderData.characterMesh.ibo);
+
+		glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)batch.GetNumVertices() * batch.GetVertexSize(), batch.GetVertices(), GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)batch.GetNumIndices() * sizeof(uint32_t), batch.GetIndices(), GL_DYNAMIC_DRAW);
+
+		glDrawElements(GL_TRIANGLES, (GLsizei)batch.GetNumIndices(), GL_UNSIGNED_INT, NULL);
+
+
+		memset(renderData.textureSlots, 0xFF, sizeof(renderData.textureSlots));
+		batch.Clear();
+	}
+
 	void Renderer2D::End() {
 		FlushImageBatch();
+		FlushCharacterBatch();
 	}
+
+	
+
 }

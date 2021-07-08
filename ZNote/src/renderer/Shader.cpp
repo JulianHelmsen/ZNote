@@ -114,5 +114,45 @@ namespace utils {
 			"}\n";
 		return CreateShaderProgram(vertexSource, fragmentSource);
 	}
+
+
+	uint32_t CreateTextShaderProgram() {
+		std::string vertexSource = ""
+			"#version 400 core\n"
+			"layout(location = 0) in vec2 position;\n"
+			"layout(location = 1) in vec2 uv;\n"
+			"layout(location = 2) in uint texId;\n"
+			"layout(location = 3) in uint taint;\n"
+			"uniform mat4 viewProjectionMatrix;\n"
+			"flat out uint f_texId;\n"
+			"out vec2 outUv;\n"
+			"out vec4 taintColor;\n"
+			"void main() {\n"
+			"	gl_Position = viewProjectionMatrix * vec4(position, 0.0, 1.0);\n"
+			"	outUv = uv;\n"
+			"	f_texId = texId;\n"
+			"	uint b = (taint >> 8) & 0xFF;\n"
+			"	uint g = (taint >> 16) & 0xFF;\n"
+			"	uint r = (taint >> 24) & 0xFF;\n"
+			"	uint a = taint & 0xFF;\n"
+			"	taintColor = vec4(r, g, b, a) / 255; \n"
+			"}\n";
+
+		std::string fragmentSource =
+			"#version 400 core\n"
+			"in vec2 outUv;\n"
+			"in vec4 taintColor;\n"
+			"out vec4 outColor;\n"
+			"uniform sampler2D u_textures[32];\n"
+			"flat in uint f_texId;\n"
+			"void main() {\n"
+			"	float r = texture(u_textures[f_texId], outUv).r;\n"
+			"	if(r < 0.1f) \n"
+			//"		{outColor =  vec4(0, 255, 0, 1.0f); return;}\n"
+			"		discard;\n"
+			"	outColor =  taintColor * vec4(r, r, r, 1.0f);\n"
+			"}\n";
+		return CreateShaderProgram(vertexSource, fragmentSource);
+	}
 	
 }

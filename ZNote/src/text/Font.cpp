@@ -35,7 +35,7 @@ namespace app {
 #ifdef WINDOWS
 			filepath = "C:/Windows/Fonts/arial.ttf";
 #else
-			ASSERT(false) :
+	#error "Platform not supported"
 #endif
 		}
 

@@ -28,7 +28,7 @@ namespace app {
 		glewInit();
 		renderer::SetRenderDefaults();
 		Renderer2D::Initialize();
-		// Font::LoadFont(NULL);
+		Font::LoadFont(NULL);
 
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -88,6 +88,12 @@ namespace app {
 		for (Layer* layer : m_layers) {
 			layer->OnUpdate();
 		}
+
+		Renderer2D::Begin(glm::mat4(1.0f));
+
+		Renderer2D::DrawImage(Font::GetCurrentFont()->GetTextureId(), glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f));
+
+		Renderer2D::End();
 
 	}
 

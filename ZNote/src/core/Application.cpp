@@ -88,26 +88,6 @@ namespace app {
 		for (Layer* layer : m_layers) {
 			layer->OnUpdate();
 		}
-
-		Renderer2D::Begin(glm::mat4(1.0f));
-
-		glm::vec2 baseLinePos{ -0.5f, 0.0f };
-		
-		baseLinePos = Renderer2D::DrawCharacter('A', baseLinePos);
-		baseLinePos = Renderer2D::DrawCharacter('l', baseLinePos);
-		baseLinePos = Renderer2D::DrawCharacter('l', baseLinePos);
-		baseLinePos = Renderer2D::DrawCharacter('e', baseLinePos);
-		baseLinePos = Renderer2D::DrawCharacter('s', baseLinePos);
-		baseLinePos = Renderer2D::DrawCharacter(' ', baseLinePos);
-		baseLinePos = Renderer2D::DrawCharacter('K', baseLinePos);
-		baseLinePos = Renderer2D::DrawCharacter('l', baseLinePos);
-		baseLinePos = Renderer2D::DrawCharacter('a', baseLinePos);
-		baseLinePos = Renderer2D::DrawCharacter('r', baseLinePos);
-		baseLinePos = Renderer2D::DrawCharacter('g', baseLinePos);
-		baseLinePos = Renderer2D::DrawCharacter('y', baseLinePos);
-
-		Renderer2D::End();
-
 	}
 
 	

@@ -38,10 +38,10 @@ namespace os {
 
 		while (true) {
 
-			bool tnTerminated = *dotOrNullTerminated == '\0' || *dotOrNullTerminated == '.';
-			bool nTerminated = *nullTerminated == '\0';
+			bool isDotOrNullTerminated = *dotOrNullTerminated == '\0' || *dotOrNullTerminated == '.';
+			bool isNullTerminated = *nullTerminated == '\0';
 
-			if (tnTerminated && nTerminated) {
+			if (isDotOrNullTerminated && isNullTerminated) {
 				return true;
 			}
 

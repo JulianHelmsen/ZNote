@@ -62,7 +62,6 @@ namespace os {
 			return extension == NULL || extension[0] == '\0'; // matches if desired extension is empty and file extension is Null
 
 		while (true) {
-			// toupper('a');
 			
 			extension = SkipToDot(extension);
 			
@@ -76,8 +75,7 @@ namespace os {
 
 
 			// compare two extensions (it and extension)
-			bool eq = Equals(extension, fileExtension);
-			if (eq)
+			if (Equals(extension, fileExtension))
 				return true;
 		}
 

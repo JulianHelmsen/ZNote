@@ -5,11 +5,13 @@
 #include "Keycodes.h"
 #include "tools/Pencil.h"
 #include "serialization/SceneSerializer.h"
+#include "serialization/SvgSerializer.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include "renderer/Renderer2D.h"
 #include "layers/CanvasLayer.h"
 #include "layers/GuiLayer.h"
 #include "text/Font.h"
+#include "os/FileUtils.h"
 
 namespace app {
 
@@ -130,9 +132,16 @@ namespace app {
 
 	void Application::Save() {
 		std::optional<std::string> filepath = os::ShowSaveDialog();
-		if (filepath) {
-			SceneSerializer::Serialize(filepath->c_str(), m_scene);
+		if (!filepath)
+			return;
+		const char* path = filepath->c_str();
+		if (os::FileUtils::DoesFileExtensionMatch(path, ".svg")) {
+			// export as scalable vector graphics
+			SvgSerializer::Serialize(path, m_scene);
+		}else {
+			SceneSerializer::Serialize(path, m_scene);
 		}
+		
 	}
 
 	void Application::Load() {

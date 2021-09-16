@@ -29,6 +29,9 @@ namespace app {
 		static const glm::mat4& GetViewProjectionMatrix() { return s_app->m_viewProjectionMatrix; }
 		static Application* GetApp() { return s_app; }
 		static Scene& GetActiveScene() { return s_app->m_scene; }
+
+
+		void Save();
 	private:
 		static Application* s_app;
 		// Rendering buffers
@@ -53,7 +56,6 @@ namespace app {
 		void PopLayer();
 		
 		
-		void Save();
 		void Load();
 
 		Scene m_scene;

@@ -120,8 +120,6 @@ namespace app {
 		Scene& scene = Application::GetActiveScene();
 		glm::mat4 inverse = glm::inverse(Application::GetViewProjectionMatrix());
 		glm::vec2 worldMousePos = inverse * glm::vec4(Window::NormalizeScreenCoordinates(event.mouseX, event.mouseY), 0.0f, 1.0f);
-
-
 		
 		Zoom(event.direction > 0 ? 1.1f : 0.9f, worldMousePos);
 

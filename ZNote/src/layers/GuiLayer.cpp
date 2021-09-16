@@ -9,6 +9,7 @@
 #include "GuiLayerImages.h"
 #include <GL/glew.h>
 #include "gui/Animation.h"
+#include "core/Application.h"
 
 
 namespace app {
@@ -47,10 +48,12 @@ namespace app {
 		gui::Button* paintButton = new gui::Button();
 		gui::Button* eraseButton = new gui::Button();
 		gui::Button* transformButton = new gui::Button();
+		gui::Button* saveButton = new gui::Button();
 
 		paintButton->SetSize(0.1f, 0.1f);
 		eraseButton->SetSize(0.1f, 0.1f);
 		transformButton->SetSize(0.1f, 0.1f);
+		saveButton->SetSize(0.1f, 0.1f);
 
 		// elements to tool list are added bottom to top
 
@@ -64,6 +67,7 @@ namespace app {
 		m_eraserTextureId = utils::TextureLoader::LoadTexture(s_eraserToolImage, 32, 32, 4);
 		m_pencilTextureId = utils::TextureLoader::LoadTexture(s_pencilToolImage, 32, 32, 4);
 		m_colorButtonTextureId = utils::TextureLoader::LoadTexture(s_colorButton, 32, 32, 4);
+		m_saveButtonTextureId = utils::TextureLoader::LoadTexture(s_saveButton, 32, 32, 4);
 
 		colorSelectionButton->SetTexture(m_colorButtonTextureId);
 
@@ -89,6 +93,7 @@ namespace app {
 
 		
 
+		m_toolList->AddChild(saveButton);
 		m_toolList->AddChild(transformButton);
 		m_toolList->AddChild(eraseButton);
 		m_toolList->AddChild(paintButton);
@@ -98,6 +103,11 @@ namespace app {
 		transformButton->SetTexture(m_transformTextureId);
 		eraseButton->SetTexture(m_eraserTextureId);
 		paintButton->SetTexture(m_pencilTextureId);
+		saveButton->SetTexture(m_saveButtonTextureId);
+
+		saveButton->SetClickCallback([]() -> void {
+			Application::GetApp()->Save();
+		});
 
 		transformButton->SetClickCallback([]() -> void {
 			Tool::UseTool(new TransformTool);
@@ -209,6 +219,7 @@ namespace app {
 		glDeleteTextures(1, &m_eraserTextureId);
 		glDeleteTextures(1, &m_pencilTextureId);
 		glDeleteTextures(1, &m_colorButtonTextureId);
+		glDeleteTextures(1, &m_saveButtonTextureId);
 	}
 
 	void GuiLayer::OnUpdate() {

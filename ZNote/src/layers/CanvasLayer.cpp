@@ -36,6 +36,11 @@ namespace app {
 				AddImage(image);
 			}
 		}
+		else if(event.keycode == KEY_PLUS) {
+			//Zoom(1.1f);
+		}else if(event.keycode == KEY_MINUS) {
+			//Zoom(0.9f);
+		}
 	}
 
 	void CanvasLayer::OnEvent(Event& event) {

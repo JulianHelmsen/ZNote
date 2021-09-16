@@ -18,9 +18,7 @@ enum class MouseButton : uint32_t {
 #define KEY_SPACE              32
 #define KEY_APOSTROPHE         39 
 #define KEY_COMMA              44 
-#define KEY_MINUS              45 
 #define KEY_PERIOD             46 
-#define KEY_SLASH              47 
 #define KEY_0                  48
 #define KEY_1                  49
 #define KEY_2                  50
@@ -65,3 +63,5 @@ enum class MouseButton : uint32_t {
 #define KEY_GRAVE_ACCENT       96 
 #define KEY_WORLD_1            161
 #define KEY_WORLD_2            162
+#define KEY_PLUS				93
+#define KEY_MINUS				47

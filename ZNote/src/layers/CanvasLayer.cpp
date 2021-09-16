@@ -37,9 +37,9 @@ namespace app {
 			}
 		}
 		else if(event.keycode == KEY_PLUS) {
-			//Zoom(1.1f);
+			Zoom(1.1f);
 		}else if(event.keycode == KEY_MINUS) {
-			//Zoom(0.9f);
+			Zoom(0.9f);
 		}
 	}
 

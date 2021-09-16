@@ -168,8 +168,8 @@ namespace app {
 
 	void Application::Run() {
 		while (!Window::IsClosed()) {
-			Update();
 			Window::PollEvents();
+			Update();
 			Window::SwapBuffers();
 		}
 	}

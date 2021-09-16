@@ -2,6 +2,7 @@
 
 #include "core/Layer.h"
 #include "Scene.h"
+#include <glm/glm.hpp>
 
 namespace app {
 
@@ -22,6 +23,9 @@ namespace app {
 	private:
 
 		MouseButton m_pressedButton = MouseButton::NONE;
+
+		void Zoom(float zoom, const glm::vec2& mousePosition);
+		void Zoom(float zoom);
 
 		void OnDrag(const MouseButton& button, const MouseMoved& moved);
 		void OnScroll(const MouseScrolled& event);

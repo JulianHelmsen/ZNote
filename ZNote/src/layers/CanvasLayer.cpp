@@ -90,15 +90,41 @@ namespace app {
 
 	}
 
+	void CanvasLayer::Zoom(float zoom, const glm::vec2& position) {
+		// the position should stay on the same spot on the screen
+		Scene& scene = Application::GetActiveScene();
 
+		// approach:
+		// oldZoom * (position + oldCameraTranslation) = zoom * oldZoom * (position + newCameraTranslation)
+		// position + oldCameraTranslation = zoom * (position + newCameraTranslation)
+		// 1 / zoom * (position + oldCameraTranslation) = position + newCameraTranslation
+		// solution:
+		// 1 / zoom * (position + oldCameraTranslation) - position = newCameraTranslation
+
+		glm::vec2 n;
+		n.x = 1.0f / zoom * (position.x + scene.translationMatrix[3][0]) - position.x;
+		n.y = 1.0f / zoom * (position.y + scene.translationMatrix[3][1]) - position.y;
+
+		scene.translationMatrix[3][0] = n.x;
+		scene.translationMatrix[3][1] = n.y;
+		Zoom(zoom);
+	}
+
+	void CanvasLayer::Zoom(float zoom) {
+		Scene& scene = Application::GetActiveScene();
+		scene.scaleMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(zoom));
+	}
 	
 
 	void CanvasLayer::OnScroll(const MouseScrolled& event) {
 		Scene& scene = Application::GetActiveScene();
-		if (event.direction > 0)
-			scene.scaleMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(1.1f));
-		else
-			scene.scaleMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(0.9f));
+		glm::mat4 inverse = glm::inverse(Application::GetViewProjectionMatrix());
+		glm::vec2 worldMousePos = inverse * glm::vec4(Window::NormalizeScreenCoordinates(event.mouseX, event.mouseY), 0.0f, 1.0f);
+
+
+		
+		Zoom(event.direction > 0 ? 1.1f : 0.9f, worldMousePos);
+
 	}
 
 	void CanvasLayer::OnDrag(const MouseButton& button, const MouseMoved& moved) {

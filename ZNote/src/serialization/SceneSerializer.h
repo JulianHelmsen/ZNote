@@ -8,5 +8,8 @@ namespace app {
 	public:
 		static void Serialize(const char* filepath, const Scene& scene);
 		static void Deserialize(Scene* scene, const char* filepath);
+
+	private:
+		static bool IsSavableAs(const char* filepath, const Scene& scene);
 	};
 }

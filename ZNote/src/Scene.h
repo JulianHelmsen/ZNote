@@ -27,6 +27,7 @@ namespace app {
 	struct Scene {
 		renderer::Batch<Vertex> lineBatch;
 		std::vector<Image> images;
+		std::string filepath;
 
 		glm::mat4 viewMatrix = glm::mat4(1.0f);
 		glm::mat4 translationMatrix = glm::mat4(1.0f);

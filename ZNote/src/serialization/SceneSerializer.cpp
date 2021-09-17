@@ -5,6 +5,8 @@
 #include "renderer/TextureLoader.h"
 #include "Compression.h"
 #include <cstddef>
+#include <filesystem>
+#include "os/Utils.h"
 
 
 #define ERROR_CRITICAL (1 << 30)
@@ -14,6 +16,22 @@
 
 
 namespace app {
+
+	bool SceneSerializer::IsSavableAs(const char* filepath, const Scene& scene) {
+		// check if filepath matches scenes source filepath
+		if (scene.filepath == filepath)
+			return true;
+		
+		
+		// check if file already exists
+		bool exists = std::filesystem::exists(filepath);
+		if (!exists)
+			return true;
+
+		char buffer[256] = { 0 };
+		sprintf_s(buffer, sizeof(buffer), "The scene was not loaded from file \"%s\". Would you like to override?", filepath);
+		return os::ShowConfirmDialog("Confirm save as", buffer);
+	}
 
 	struct SaveFileHeader {
 		Compression::CompressionAlgorithm compressionAlgorithm;
@@ -111,6 +129,12 @@ namespace app {
 
 
 	void SceneSerializer::Serialize(const char* filepath, const Scene& scene) {
+		if (!IsSavableAs(filepath, scene))
+			return;
+
+		std::string* filepathPtr = (std::string*) &scene.filepath;
+		*filepathPtr = filepath;
+
 		const std::vector<Vertex>& lineVertices = scene.lineBatch.GetVertexList();
 		const std::vector<uint32_t>& lineIndices = scene.lineBatch.GetIndexList();
 
@@ -260,6 +284,7 @@ namespace app {
 	}
 
 	void SceneSerializer::Deserialize(Scene* scene, const char* filepath) {
+		scene->filepath = filepath;
 		std::vector<Vertex>& lineVertices = scene->lineBatch.GetVertexList();
 		std::vector<uint32_t>& lineIndices = scene->lineBatch.GetIndexList();
 

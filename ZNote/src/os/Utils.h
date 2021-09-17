@@ -12,5 +12,8 @@ namespace os {
 	void HideConsoleWindow();
 	void ShowConsoleWindow();
 
+	bool ShowConfirmDialog(const char* title, const char* message);
+
+
 	
 }

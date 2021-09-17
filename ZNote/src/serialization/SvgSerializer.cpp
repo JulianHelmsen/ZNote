@@ -104,7 +104,7 @@ namespace app {
 		int len = sprintf_s(lineBuffer, sizeof(lineBuffer), "\twidth=\"%fpx\" height=\"%fpx\"\n", 500.0f, 500.0f);
 		fwrite(lineBuffer, len, 1, file);
 
-		len = sprintf_s(lineBuffer, sizeof(lineBuffer), "\tviewbox=\"%f %f %f %f\">\n\n", (float) 0, (float)0, maxX - minX, maxY - minY);
+		len = sprintf_s(lineBuffer, sizeof(lineBuffer), "\tviewbox=\"%f %f %f %f\">\n\n", 0.0f, 0.0f, maxX - minX, maxY - minY);
 		fwrite(lineBuffer, len, 1, file);
 		// </header>
 

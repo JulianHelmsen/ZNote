@@ -19,11 +19,8 @@ namespace app {
 		fwrite(string, strlen(string), 1, file);
 	}
 
-	/*
-	* TODO: does not include the last vertex
-	*/
 	static uint32_t WriteStroke(FILE* file, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, uint32_t beginIdx, const WorldViewport& viewport) {
-		uint32_t newOffset = indices.size();
+		uint32_t newOffset = (uint32_t) indices.size();
 		
 		char headerBuffer[100];
 		Color color = vertices[indices[beginIdx]].color;
@@ -107,7 +104,7 @@ namespace app {
 		int len = sprintf_s(lineBuffer, sizeof(lineBuffer), "\twidth=\"%fpx\" height=\"%fpx\"\n", 500.0f, 500.0f);
 		fwrite(lineBuffer, len, 1, file);
 
-		len = sprintf_s(lineBuffer, sizeof(lineBuffer), "\tviewbox=\"%f %f %f %f\">\n\n", 0, 0, maxX - minX, maxY - minY);
+		len = sprintf_s(lineBuffer, sizeof(lineBuffer), "\tviewbox=\"%f %f %f %f\">\n\n", (float) 0, (float)0, maxX - minX, maxY - minY);
 		fwrite(lineBuffer, len, 1, file);
 		// </header>
 

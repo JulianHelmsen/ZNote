@@ -104,7 +104,7 @@ namespace app {
 	}
 	
 	static void SerializeStrokeLengths(std::vector<uint8_t>& writeBuffer, SerializationTypes type, const std::vector<uint32_t>& indices) {
-		uint32_t currentLen = 0;
+		uint32_t currentLen = 1;
 		std::vector<uint32_t> lengths;
 		lengths.reserve(500);
 
@@ -113,10 +113,12 @@ namespace app {
 				currentLen++;
 			}else {
 				lengths.push_back(currentLen + 1);
-				currentLen = 0;
+				currentLen = 1;
 			}
 		}
-		lengths.push_back(currentLen + 1);
+		if(indices.size())
+			lengths.push_back(currentLen + 1);
+
 		uint32_t numStrokes = (uint32_t) lengths.size();
 
 		Write(writeBuffer, &type, 1);

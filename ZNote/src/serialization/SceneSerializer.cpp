@@ -223,8 +223,8 @@ namespace app {
 		Image image;
 		image.filepath.resize(filepathLen);
 		Copy(image.filepath.data(), position, filepathLen);
-
-		image.textureId = utils::TextureLoader::LoadTexture(image.filepath.c_str());
+		image = utils::TextureLoader::LoadTexture(image.filepath.c_str());
+		
 		
 		if (*position + sizeof(glm::vec2) > end)
 			return ERROR_NOT_ENOUGH_MEMORY;

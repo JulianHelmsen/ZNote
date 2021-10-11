@@ -30,8 +30,7 @@ namespace app {
 			// load image and add it to scene
 			std::optional<std::string> filepath = os::ShowOpenDialog(NULL);
 			if (filepath) {
-				Image image;
-				image.textureId = utils::TextureLoader::LoadTexture(filepath->c_str(), &image.size);
+				Image image = utils::TextureLoader::LoadTexture(filepath->c_str());
 				image.filepath = *filepath;
 				AddImage(image);
 			}
@@ -58,11 +57,8 @@ namespace app {
 		}else if (event.IsOfType<os::ClipboardImage>()) {
 			os::ClipboardImage& clipboardImage = event.Get<os::ClipboardImage>();
 
-			Image image;
-			image.textureId = utils::TextureLoader::LoadTexture(clipboardImage.imageData, clipboardImage.width, clipboardImage.height, clipboardImage.numChannels);
-			image.filepath = std::string("(none)");
-			image.size.x = (float) clipboardImage.width;
-			image.size.y = (float) clipboardImage.height;
+			Image image = utils::TextureLoader::LoadTexture(clipboardImage.imageData, clipboardImage.width, 
+															clipboardImage.height, clipboardImage.numChannels);
 			AddImage(image);
 		}else if(event.IsOfType<MouseMoved>()) {
 			if (m_pressedButton != MouseButton::NONE) {
@@ -74,10 +70,7 @@ namespace app {
 			const char* path = pasted.file;
 
 			if (os::FileUtils::DoesFileExtensionMatch(path, ".png.jpg.jpeg")) {
-				Image image;
-				image.textureId = utils::TextureLoader::LoadTexture(path, &image.size);
-				image.filepath = path;
-				AddImage(image);
+				AddImage(utils::TextureLoader::LoadTexture(path));
 			}
 		}
 	}

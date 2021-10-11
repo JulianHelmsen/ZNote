@@ -3,6 +3,7 @@
 #include "core/Application.h"
 #include "renderer/Renderer2D.h"
 #include <cmath>
+#include "renderer/TextureLoader.h"
 
 #define AXIS_NONE (0)
 #define AXIS_X_BIT (1)
@@ -85,6 +86,8 @@ namespace app {
 			if (m_targetType == TargetType::IMAGE) {
 				Image* image = (Image*) m_target;
 				const uint32_t idx = (uint32_t) (image - m_context->images.data());
+				
+				utils::TextureLoader::DeleteImage(*image);
 				m_context->images.erase(m_context->images.begin() + idx);
 			}
 

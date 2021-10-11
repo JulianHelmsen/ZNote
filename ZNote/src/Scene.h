@@ -17,6 +17,8 @@ namespace app {
 
 	struct Image {
 		glm::vec2 centerPos;
+		uint32_t textureWidth;
+		uint32_t textureHeight;
 		glm::vec2 size;
 		
 		uint32_t textureId;

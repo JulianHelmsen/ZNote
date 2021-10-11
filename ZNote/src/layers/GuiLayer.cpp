@@ -62,12 +62,12 @@ namespace app {
 		m_colorList->AddChild(colorSelectionButton);
 
 		
-		m_bucketTextureId = utils::TextureLoader::LoadTexture(s_bucketImage, 32, 32, 4);
-		m_transformTextureId = utils::TextureLoader::LoadTexture(s_transformToolImage, 32, 32, 4);
-		m_eraserTextureId = utils::TextureLoader::LoadTexture(s_eraserToolImage, 32, 32, 4);
-		m_pencilTextureId = utils::TextureLoader::LoadTexture(s_pencilToolImage, 32, 32, 4);
-		m_colorButtonTextureId = utils::TextureLoader::LoadTexture(s_colorButton, 32, 32, 4);
-		m_saveButtonTextureId = utils::TextureLoader::LoadTexture(s_saveButton, 32, 32, 4);
+		m_bucketTextureId = utils::TextureLoader::LoadTexture(s_bucketImage, 32, 32, 4).textureId;
+		m_transformTextureId = utils::TextureLoader::LoadTexture(s_transformToolImage, 32, 32, 4).textureId;
+		m_eraserTextureId = utils::TextureLoader::LoadTexture(s_eraserToolImage, 32, 32, 4).textureId;
+		m_pencilTextureId = utils::TextureLoader::LoadTexture(s_pencilToolImage, 32, 32, 4).textureId;
+		m_colorButtonTextureId = utils::TextureLoader::LoadTexture(s_colorButton, 32, 32, 4).textureId;
+		m_saveButtonTextureId = utils::TextureLoader::LoadTexture(s_saveButton, 32, 32, 4).textureId;
 
 		colorSelectionButton->SetTexture(m_colorButtonTextureId);
 

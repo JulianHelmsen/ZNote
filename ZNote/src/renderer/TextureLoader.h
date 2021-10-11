@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <glm/glm.hpp>
+#include "Scene.h"
 
 namespace utils {
 
@@ -9,9 +10,11 @@ namespace utils {
 	public:
 
 		static uint32_t GetWhiteTexture();
-		static uint32_t LoadTexture(const char* filepath, glm::vec2* size);
-		static uint32_t LoadTexture(const char* filepath) { return LoadTexture(filepath, NULL); }
-		static uint32_t LoadTexture(const void* imageData, uint32_t width, uint32_t height, uint32_t numChannels);
+		static app::Image LoadTexture(const char* filepath);
+		static app::Image LoadTexture(const void* imageData, uint32_t width, uint32_t height, uint32_t numChannels);
+
+		static void DeleteTexture(uint32_t texId);
+		static void DeleteImage(const app::Image& image) { DeleteTexture(image.textureId); }
 	};
 
 }

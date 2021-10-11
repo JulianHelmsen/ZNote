@@ -63,8 +63,8 @@ namespace os {
 		
 		wchar_t questionString[1020];
 		wchar_t titleString[100];
-		uint32_t titleLen = (uint32_t)strlen(title);
-		uint32_t questionLen = (uint32_t)strlen(message);
+		uint32_t titleLen = (uint32_t)strlen(title) + 1;
+		uint32_t questionLen = (uint32_t)strlen(message) + 1;
 
 		ASSERT(titleLen * 2 < sizeof(titleString));
 		ASSERT(questionLen * 2 < sizeof(questionString));

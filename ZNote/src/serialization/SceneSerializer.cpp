@@ -112,21 +112,18 @@ namespace app {
 			if (indices[i] == indices[i + 1]) {
 				currentLen++;
 			}else {
-				lengths.push_back(currentLen + 1);
+				lengths.push_back(currentLen);
 				currentLen = 1;
 			}
 		}
 		if(indices.size())
-			lengths.push_back(currentLen + 1);
+			lengths.push_back(currentLen);
 
 		uint32_t numStrokes = (uint32_t) lengths.size();
 
 		Write(writeBuffer, &type, 1);
 		Write(writeBuffer, &numStrokes, 1);
-		for (uint32_t val : lengths) {
-			Write(writeBuffer, &val, 1);
-		}
-			
+		Write(writeBuffer, lengths.data(), lengths.size());
 	}
 
 

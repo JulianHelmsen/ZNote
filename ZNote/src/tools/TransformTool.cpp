@@ -144,7 +144,7 @@ namespace app {
 	}
 
 	void TransformTool::OnMouseMove(const glm::vec2& mouse_position) {
-		m_hoveredAxis = GetAxis(mouse_position);
+		m_hoveredAxis = GetAxis(WorldToGuizmoSpace(mouse_position));
 	}
 
 

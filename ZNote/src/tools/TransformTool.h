@@ -11,6 +11,7 @@ namespace app {
 
 	class TransformTool : public Tool {
 	public:
+		void OnMouseMove(const glm::vec2& mouse_position) override;
 		void OnButtonStateChanged(MouseButton button, const glm::vec2& pos, bool down) override;
 		void OnDrag(MouseButton button, const glm::vec2& prev, const glm::vec2& newpos) override;
 		void OnKeyPress(uint32_t keycode) override;
@@ -26,6 +27,7 @@ namespace app {
 
 		glm::vec2 m_arrowSize;
 		uint32_t m_selectedAxis = 0;
+		uint32_t m_hoveredAxis = 0;
 
 
 		void TransformTarget(TransformationType type, const glm::vec2& values);

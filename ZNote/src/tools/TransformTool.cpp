@@ -13,6 +13,10 @@ namespace app {
 	TransformTool::TransformationType TransformTool::s_transformationType = TransformationType::TRANSLATION;
 	static glm::vec2 s_defaultArrowSize = glm::vec2(0.2f, 0.2f);
 
+
+
+
+
 	void TransformTool::OnDrag(MouseButton button, const glm::vec2& prev, const glm::vec2& newpos) {
 		if (!m_selectedAxis)
 			return; // user had not dragged an axis -> no update of transformation
@@ -112,6 +116,8 @@ namespace app {
 	}
 
 	uint32_t TransformTool::GetAxis(const glm::vec2& pos) {
+		if (!m_target)
+			return AXIS_NONE;
 		glm::vec2 guizmoPos = GetGuizmoPosition();
 		glm::vec2 relativePos = pos - guizmoPos;
 		
@@ -135,6 +141,10 @@ namespace app {
 			return AXIS_X_BIT;
 		}
 		return AXIS_NONE;
+	}
+
+	void TransformTool::OnMouseMove(const glm::vec2& mouse_position) {
+		m_hoveredAxis = GetAxis(mouse_position);
 	}
 
 
@@ -234,20 +244,31 @@ namespace app {
 
 		renderer::Batch<Vertex> batch;
 
+		Color red{ 200, 0, 0 };
+		Color green{ 0, 200, 0 };
+
+		if (m_hoveredAxis & AXIS_X_BIT)
+			red.r = 255;
+		if (m_hoveredAxis & AXIS_Y_BIT)
+			green.g = 255;
+
 		// construct mesh
 
-		batch.InsertVertex(Vertex{ pos, Color{255, 0, 0} });
-		batch.InsertVertex(Vertex{ pos + glm::vec2(m_arrowSize.x, 0.0f), Color{255, 0, 0} });
-		batch.InsertVertex(Vertex{ pos, Color{0, 255, 0} });
-		batch.InsertVertex(Vertex{ pos + glm::vec2(0.0f, m_arrowSize.y), Color{0, 255, 0} });
+		batch.InsertVertex(Vertex{ pos, red });
+		batch.InsertVertex(Vertex{ pos + glm::vec2(m_arrowSize.x, 0.0f), red });
+		batch.InsertVertex(Vertex{ pos, green });
+		batch.InsertVertex(Vertex{ pos + glm::vec2(0.0f, m_arrowSize.y), green });
 		
 		batch.InsertIndex(0);
 		batch.InsertIndex(1);
 		batch.InsertIndex(2);
 		batch.InsertIndex(3);
 
-		DrawEnd(batch, Color{ 255, 0, 0}, pos + glm::vec2(m_arrowSize.x, 0.0f), true);
-		DrawEnd(batch, Color{ 0, 255, 0 }, pos + glm::vec2(0.0f, m_arrowSize.y), false);
+		
+
+		
+		DrawEnd(batch, red, pos + glm::vec2(m_arrowSize.x, 0.0f), true);
+		DrawEnd(batch, green, pos + glm::vec2(0.0f, m_arrowSize.y), false);
 
 		Renderer2D::Begin(Application::GetProjectionMatrix());
 		Renderer2D::DrawBatch(batch);

@@ -61,9 +61,15 @@ namespace app {
 															clipboardImage.height, clipboardImage.numChannels);
 			AddImage(image);
 		}else if(event.IsOfType<MouseMoved>()) {
+			const MouseMoved& mouseMovedEvent = event.Get<MouseMoved>();
+
 			if (m_pressedButton != MouseButton::NONE) {
 				// dragged
-				OnDrag(m_pressedButton, event.Get<MouseMoved>());
+				OnDrag(m_pressedButton, mouseMovedEvent);
+			}else {	
+				glm::mat4 inverse = glm::inverse(Application::GetViewProjectionMatrix());
+				glm::vec2 world_pos = inverse * glm::vec4(Window::NormalizeScreenCoordinates(mouseMovedEvent.newX, mouseMovedEvent.newY), 0.0f, 1.0f);
+				Tool::ActiveTool()->OnMouseMove(world_pos);
 			}
 		}else if (event.IsOfType<os::FilePasted>()) {
 			const os::FilePasted& pasted = event.Get<os::FilePasted>();

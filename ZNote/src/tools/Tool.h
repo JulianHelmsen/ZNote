@@ -9,6 +9,7 @@ namespace app {
 
 	class Tool {
 	public:
+		virtual void OnMouseMove(const glm::vec2& mouse_position) {}
 		virtual void OnDrag(MouseButton button, const glm::vec2& prev, const glm::vec2& newpos) {}
 		virtual void OnButtonStateChanged(MouseButton button, const glm::vec2& pos, bool down) {}
 		virtual void OnKeyPress(uint32_t keycode) {}

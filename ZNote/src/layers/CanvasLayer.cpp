@@ -125,15 +125,13 @@ namespace app {
 	}
 
 	void CanvasLayer::OnDrag(const MouseButton& button, const MouseMoved& moved) {
-		const glm::mat4& viewProjectionMatrix = Application::GetViewProjectionMatrix();
-		Scene& scene = Application::GetActiveScene();
 
-		glm::mat4 inverse = glm::inverse(viewProjectionMatrix);
-		glm::vec2 normalizedOld = inverse * glm::vec4(Window::NormalizeScreenCoordinates(moved.oldX, moved.oldY), 0.0f, 1.0f);
-		glm::vec2 normalized = inverse * glm::vec4(Window::NormalizeScreenCoordinates(moved.newX, moved.newY), 0.0f, 1.0f);
+		glm::vec2 normalizedOld = MouseToWorldSpace(moved.oldX, moved.oldY);
+		glm::vec2 normalized = MouseToWorldSpace(moved.newX, moved.newY);
 
 		if (button == MouseButton::RIGHT) {
 			// move camera
+			Scene& scene = Application::GetActiveScene();
 			scene.translationMatrix[3][0] -= normalizedOld.x - normalized.x;
 			scene.translationMatrix[3][1] -= normalizedOld.y - normalized.y;
 		}else if (Tool::ActiveTool() && button == MouseButton::LEFT) {
@@ -164,7 +162,6 @@ namespace app {
 
 	void CanvasLayer::OnButtonStateChanged(Event& event) {
 		// TODO: refactor
-		const glm::mat4& viewProjectionMatrix = Application::GetViewProjectionMatrix();
 		uint32_t x;
 		uint32_t y;
 		MouseButton button;
@@ -178,8 +175,7 @@ namespace app {
 			y = e.mouseY;
 			button = e.button;
 			m_pressedButton = e.button;
-		}
-		else {
+		}else {
 			isdown = false;
 			MouseReleased& e = event.Get<MouseReleased>();
 			x = e.mouseX;
@@ -188,11 +184,15 @@ namespace app {
 			m_pressedButton = MouseButton::NONE;
 		}
 
-		glm::mat4 inverse = glm::inverse(viewProjectionMatrix);
-		glm::vec2 mousePos = inverse * glm::vec4(Window::NormalizeScreenCoordinates(x, y), 0.0f, 1.0f);
+		glm::vec2 mousePos = MouseToWorldSpace(x, y);
 
 		if (Tool::ActiveTool())
 			Tool::ActiveTool()->OnButtonStateChanged(button, mousePos, isdown);
+	}
+
+	glm::vec2 CanvasLayer::MouseToWorldSpace(glm::vec2 mouse_pos) const {
+		glm::mat4 inverse = glm::inverse(Application::GetViewProjectionMatrix());
+		return inverse * glm::vec4(Window::NormalizeScreenCoordinates(mouse_pos.x, mouse_pos.y), 0.0f, 1.0f);
 	}
 
 	void CanvasLayer::AddImage(Image& image) {

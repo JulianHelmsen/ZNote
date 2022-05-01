@@ -32,6 +32,9 @@ namespace app {
 		void OnKeyPress(const KeyPressed& event);
 		void OnButtonStateChanged(Event& event);
 
+		glm::vec2 MouseToWorldSpace(uint32_t mouse_x, uint32_t mouse_y) const { return MouseToWorldSpace(glm::vec2(mouse_x, mouse_y)); }
+		glm::vec2 MouseToWorldSpace(glm::vec2 mouse_pos) const;
+
 
 		void AddImage(Image& image);
 	};

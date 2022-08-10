@@ -5,6 +5,7 @@ bin
 **.vcxproj.filters
 **.vcxproj.user
 ZNote/obj
+ZNote/ZNote.exe
 
 **~
 bin

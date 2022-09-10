@@ -78,6 +78,9 @@ namespace app {
 			if (os::FileUtils::DoesFileExtensionMatch(path, ".png.jpg.jpeg")) {
 				AddImage(utils::TextureLoader::LoadTexture(path));
 			}
+		}else if (event.IsOfType<app::TouchEvent>()) {
+			const app::TouchEvent& touch = event.Get<app::TouchEvent>();
+			LOG("Touch event: id: %d, x: %d, y: %d\n", touch.touch_id, touch.x, touch.y);
 		}
 	}
 

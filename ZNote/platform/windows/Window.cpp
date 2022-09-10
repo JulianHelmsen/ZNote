@@ -104,6 +104,7 @@ void Window::SetEventCallback(std::function<void(app::Event&)> eventCallback) {
 	s_eventCallback = eventCallback;
 }
 
+static void ProcessTouch(const TOUCHINPUT& touch);
 static void OnButtonChange(uint32_t cursorX, uint32_t cursorY, int button, int action);
 static void OnKeyChange(uint32_t key, int action, int mods) {
 	if (action == ACTION_PRESS) {
@@ -198,10 +199,60 @@ LRESULT WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 		DragFinish(drop);
+	}else if (msg == WM_TOUCH) {
+		uint32_t num_touch = LOWORD(wParam);
+		TOUCHINPUT* touchInput = new TOUCHINPUT[num_touch];
+		if (touchInput != NULL) {
+
+			if (GetTouchInputInfo((HTOUCHINPUT)lParam, num_touch, touchInput, sizeof(TOUCHINPUT))) {
+
+				for (uint32_t i = 0; i < num_touch; i++)
+					ProcessTouch(touchInput[i]);
+
+				CloseTouchInputHandle((HTOUCHINPUT)lParam);
+			}
+
+			delete[] touchInput;
+		}
+
 	}
 
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+static void ProcessTouch(const TOUCHINPUT& touch_data) {
+	app::Event event;
+	app::TouchEvent touch;
+
+
+	touch.type = 0;
+	if (touch_data.dwFlags & TOUCHEVENTF_MOVE) {
+		touch.type |= app::TouchEvent::TouchEventType::TOUCH_MOTION;
+	}
+	if (touch_data.dwFlags & TOUCHEVENTF_DOWN) {
+		touch.type |= app::TouchEvent::TouchEventType::TOUCH_PRESS;
+	}
+	if (touch_data.dwFlags & TOUCHEVENTF_UP) {
+		touch.type |= app::TouchEvent::TouchEventType::TOUCH_RELEASE;
+	}
+	touch.touch_id = touch_data.dwID;
+	touch.x = TOUCH_COORD_TO_PIXEL(touch_data.x);
+	touch.y = TOUCH_COORD_TO_PIXEL(touch_data.y);
+
+	touch.is_contact_area_valid = 1 & TOUCHINPUTMASKF_CONTACTAREA;
+	touch.contact_area = (float)TOUCH_COORD_TO_PIXEL(touch_data.cxContact) * TOUCH_COORD_TO_PIXEL(touch_data.cyContact);
+
+	if (touch_data.dwFlags & TOUCHEVENTF_PEN) {
+		touch.source = app::TouchEvent::InputSource::PEN;
+	}else if (touch_data.dwFlags & TOUCHEVENTF_PALM) {
+		touch.source = app::TouchEvent::InputSource::PALM;
+	}else {
+		touch.source = app::TouchEvent::InputSource::FINGER;
+	}
+	event.Set(touch);
+	if (s_eventCallback)
+		s_eventCallback(event);
 }
 
 static void OnButtonChange(uint32_t cursorX, uint32_t cursorY, int button, int action) {
@@ -310,35 +361,16 @@ void Window::Create() {
 		ERR("Failed to create the window\n");
 		exit(-1);
 	}
+	RegisterTouchWindow(s_hWnd, TWF_FINETOUCH);
 	DragAcceptFiles(s_hWnd, TRUE);
 	ShowWindow(s_hWnd, SW_SHOW);
 	MakeContextCurrent(s_hWnd);
-#if 0
 
-	glfwSetDropCallback(s_window, [](GLFWwindow*, int count, const char** paths) -> void {
-		if (!s_eventCallback)
-			return;
-		app::Event event;
-		os::FilePasted pasted;
-
-		for (int i = 0; i < count; i++) {
-			pasted.file = paths[i];
-			event.Set(pasted);
-			s_eventCallback(event);
-		}
-		});
-
-	app::Event event;
-	app::WindowResized resized;
-	resized.newWidth = defaultWidth;
-	resized.newHeight = defaultHeight;
-	event.Set(resized);
-	s_eventCallback(event);
-#endif
 }
 
 
 void Window::Destroy() {
+	UnregisterTouchWindow(s_hWnd);
 	wglMakeCurrent(s_HDC, NULL);
 	wglDeleteContext(s_gl_context);
 	s_gl_context = NULL;

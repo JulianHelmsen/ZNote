@@ -93,6 +93,27 @@ namespace app {
 	};
 
 
+	struct TouchEvent {
+		enum TouchEventType : uint32_t {
+			TOUCH_MOTION = 1, TOUCH_PRESS = 2, TOUCH_RELEASE = 4
+		};
+
+
+		enum InputSource {
+			FINGER, PEN, PALM
+		};
+
+		uint32_t type;
+		InputSource source;
+		uint32_t touch_id;
+
+		uint32_t x;
+		uint32_t y;
+		bool is_contact_area_valid;
+		float contact_area;
+	};
+
+
 
 
 }

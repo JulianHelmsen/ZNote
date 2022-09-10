@@ -75,6 +75,7 @@ namespace os {
 			unsigned char tmp = imageData[offset + 0];
 			imageData[offset + 0] = imageData[offset + 2];
 			imageData[offset + 2] = tmp;
+			imageData[offset + 3] = 0xFF;
 			offset += 4;
 		}
 

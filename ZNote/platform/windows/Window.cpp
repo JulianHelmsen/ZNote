@@ -33,6 +33,11 @@ static uint32_t mouseX = 0xFFFFFFFF, mouseY = 0xFFFFFFFF;
 
 std::function<void(app::Event&)> s_eventCallback;
 
+static bool IsKeyPressed(int keycode) {
+	return (GetAsyncKeyState(keycode) & (1 << 15)) != 0;
+}
+
+
 static uint32_t TranslateKeycode(uint32_t keycode) {
 	MAPKEY(keycode, VK_SPACE, KEY_SPACE);
 	MAPKEY(keycode, VK_OEM_COMMA, KEY_COMMA);
@@ -76,6 +81,8 @@ static uint32_t TranslateKeycode(uint32_t keycode) {
 	MAPKEY(keycode, 0x59, KEY_Y);
 	MAPKEY(keycode, 0x5A, KEY_Z);
 	MAPKEY(keycode, VK_CONTROL, KEY_MOD_CONTROL);
+	MAPKEY(keycode, VK_DELETE, KEY_DELETE);
+	MAPKEY(keycode, VK_ESCAPE, KEY_ESCAPE);
 
 
 	MAPKEY(keycode, VK_LWIN, KEY_LEFT_SUPER);
@@ -86,6 +93,12 @@ static uint32_t TranslateKeycode(uint32_t keycode) {
 	return 0;
 }
 
+static uint32_t GetMods() {
+	uint32_t mods = 0;
+	if (IsKeyPressed(VK_CONTROL))
+		mods |= TranslateKeycode(VK_CONTROL);
+	return mods;
+}
 
 void Window::SetEventCallback(std::function<void(app::Event&)> eventCallback) {
 	s_eventCallback = eventCallback;
@@ -163,7 +176,7 @@ LRESULT WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (s_eventCallback)
 			s_eventCallback(event);
 	}else if (msg == WM_KEYDOWN) {
-		OnKeyChange((uint32_t) wParam, ACTION_PRESS, 0);
+		OnKeyChange((uint32_t) wParam, ACTION_PRESS, GetMods());
 	}else if (msg == WM_DROPFILES) {
 		HDROP drop = (HDROP)wParam;
 		UINT file_count = DragQueryFileA(drop, 0xFFFFFFFF, NULL, 0);

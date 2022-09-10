@@ -1,6 +1,4 @@
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
+#include "core/Window.h"
 #include <Windows.h>
 #include "os/Utils.h"
 #include "core/Window.h"
@@ -10,7 +8,7 @@
 namespace os {
 
 	std::optional<std::string> ShowOpenDialog(const char* filter) {
-		HWND hwnd = glfwGetWin32Window((GLFWwindow*) Window::GetNativeHandle());
+		HWND hwnd = (HWND) Window::GetNativeHandle();
 
 		OPENFILENAMEA ofn;
 		CHAR szFile[260] = { 0 };
@@ -32,7 +30,7 @@ namespace os {
 	}
 
 	std::optional<std::string> ShowSaveDialog() {
-		HWND hwnd = glfwGetWin32Window((GLFWwindow*)Window::GetNativeHandle());
+		HWND hwnd = (HWND)Window::GetNativeHandle();
 
 		OPENFILENAMEA ofn;
 		CHAR szFile[260] = { 0 };
@@ -59,7 +57,7 @@ namespace os {
 	}
 
 	bool ShowConfirmDialog(const char* title, const char* message) {
-		HWND hwnd = glfwGetWin32Window((GLFWwindow*)Window::GetNativeHandle());
+		HWND hwnd = (HWND)Window::GetNativeHandle();
 		
 		wchar_t questionString[1020];
 		wchar_t titleString[100];

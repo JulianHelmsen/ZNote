@@ -1,6 +1,4 @@
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
+
 #include "os/Clipboard.h"
 #include <Windows.h>
 #include <core/Logger.h>
@@ -125,7 +123,7 @@ namespace os {
 
 	void Clipboard::Enumerate() {
 		WIN32_CHECK_ERROR(GetLastError());
-		HWND hwnd = glfwGetWin32Window((GLFWwindow*)Window::GetNativeHandle());
+		HWND hwnd = (HWND)Window::GetNativeHandle();
 		WIN32_CALL(OpenClipboard(hwnd));
 
 		UINT format = 0;

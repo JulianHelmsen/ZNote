@@ -7,7 +7,7 @@ enum class MouseButton : uint32_t {
 	RIGHT = 1,
 	NONE = 3
 };
-
+#define MAPKEY(given_code, native_code, code) if((given_code) == (native_code)) return (code);
 #define KEY_MOD_CONTROL (0x0002)
 
 #define KEY_ESCAPE (256)
@@ -65,3 +65,5 @@ enum class MouseButton : uint32_t {
 #define KEY_WORLD_2            162
 #define KEY_PLUS				93
 #define KEY_MINUS				47
+#define KEY_LEFT_SUPER			343
+#define KEY_RIGHT_SUPER			347

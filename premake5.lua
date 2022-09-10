@@ -2,7 +2,7 @@ workspace "ZNote"
 	architecture ("x86_64")
 	systemversion "latest"
 	configurations {"DEBUG", "RELEASE"}
-	platforms {"WINDOWS"}
+	platforms {"WINDOWS", "LINUX" }
 
 
 
@@ -22,7 +22,6 @@ project "ZNote"
 		"external libraries/glm",
 		"external libraries/stb",
 		"ZNote/src",
-		"external libraries/GLFW/include",
 		"external libraries/GLEW/include",
 		"external libraries/FreeType/include"
 	}
@@ -34,7 +33,6 @@ project "ZNote"
 	}
 
 	links {
-		"glfw3.lib",
 		"Opengl32",
 		"glew32s",
 		"freetype.lib"
@@ -47,6 +45,24 @@ project "ZNote"
 			"ZNote/platform/windows/**.h"
 		}
 		defines {"WINDOWS"}
+
+	filter "platforms:LINUX"
+		files {
+			"ZNote/platform/linux/**.cpp",
+			"ZNote/platform/linux/**.h"
+		}
+		defines {"LINUX"}
+
+
+		links {
+			"glfw3.lib"
+		}
+
+		includedirs {
+			"external libraries/GLFW/include"
+		}
+	
+
 
 
 	filter "configurations:DEBUG"

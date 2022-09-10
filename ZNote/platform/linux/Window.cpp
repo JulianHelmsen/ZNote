@@ -1,5 +1,5 @@
 
-#include "Window.h"
+#include "core/Window.h"
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include "os/Clipboard.h"

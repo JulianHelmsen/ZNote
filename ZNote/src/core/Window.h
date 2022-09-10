@@ -29,9 +29,8 @@ public:
 	static glm::vec2 NormalizeScreenCoordinates(uint32_t x, uint32_t y);
 	static void PostEmptyEvent();
 
+
 	
 private:
 	static void OnMouseDragged(MouseButton button, uint32_t x, uint32_t y, uint32_t nx, uint32_t ny);
-
-	
 };
